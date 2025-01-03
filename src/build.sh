@@ -9,16 +9,12 @@ set -u                  # treat unset variable as error
 source ./args.sh
 
 function check_host() {
-    local os_ver
-    os_ver=`lsb_release -i | grep -E "(Ubuntu|Debian)"`
-    if [[ -z "$os_ver" ]]; then
-        print_warn "This script is only supported on Ubuntu/Debian"
-        areYouSure
-    fi
 
-    if ! grep -q "DISTRIB_ID=AnduinOS" /etc/lsb-release; then
-        print_error "This script can only be run on AnduinOS."
-        exit 1
+    local os_ver
+    os_ver=`lsb_release -i | grep -E "(Ubuntu|Debian|AnduinOS)"`
+    if [[ -z "$os_ver" ]]; then
+        print_warn "This script is only supported on Ubuntu, Debian or AnduinOS."
+        areYouSure
     fi
 
     if [ $(id -u) -eq 0 ]; then
