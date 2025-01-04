@@ -6,7 +6,7 @@ set -e                  # exit on error
 set -o pipefail         # exit on pipeline error
 set -u                  # treat unset variable as error
 export DEBIAN_FRONTEND=noninteractive
-export LATEST_VERSION="1.0.5"
+export LATEST_VERSION="1.0.6"
 export CURRENT_VERSION=$(cat /etc/lsb-release | grep DISTRIB_RELEASE | cut -d "=" -f 2)
 
 #==========================
@@ -470,6 +470,19 @@ function upgrade_104_to_105() {
     sleep 5
 }
 
+function upgrade_105_to_106() {
+    # Add your upgrade steps from 1.0.5 to 1.0.6 here
+    print_ok "Upgrading from 1.0.5 to 1.0.6"
+
+    print_ok "Installing new apps..."
+    sudo apt install -y \
+        apt-utils crash debconf-i18n fdisk grub-efi-amd64 hwdata info init numactl cloud-init coreutils dnsutils gvfs-fuse htop httping libsass1 squashfs-tools sysstat thermald traceroute vim whiptail openvpn network-manager-openvpn network-manager-openvpn-gnome network-manager-pptp-gnome ibus gnome-snapshot gnome-text-editor gstreamer1.0-libav gstreamer1.0-alsa gstreamer1.0-vaapi gstreamer1.0-tools gstreamer1.0-packagekit gstreamer1.0-plugins-base-apps alsa-base fprintd pipx
+    judge "Install new apps"
+
+    print_ok "Upgrade to 1.0.6 succeeded"
+    sleep 5
+}
+
 function applyLsbRelease() {
     # Update /etc/lsb-release
     sudo sed -i "s/DISTRIB_RELEASE=.*/DISTRIB_RELEASE=${LATEST_VERSION}/" /etc/lsb-release
@@ -522,6 +535,7 @@ function main() {
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "0.1.1-beta")
             upgrade_011_to_012
@@ -538,6 +552,7 @@ function main() {
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "0.1.2-beta")
             upgrade_012_to_013
@@ -553,6 +568,7 @@ function main() {
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "0.1.3-beta")
             upgrade_013_to_014
@@ -567,6 +583,7 @@ function main() {
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "0.1.4-beta")
             upgrade_014_to_020
@@ -580,6 +597,7 @@ function main() {
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "0.2.0-beta")
             upgrade_020_to_021
@@ -592,6 +610,7 @@ function main() {
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "0.2.1-beta")
             upgrade_021_to_022
@@ -603,6 +622,7 @@ function main() {
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "0.2.2-beta")
             upgrade_022_to_030
@@ -613,6 +633,7 @@ function main() {
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "0.3.0-rc")
             upgrade_030_to_031
@@ -622,6 +643,7 @@ function main() {
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "0.3.1-rc")
             upgrade_031_to_100
@@ -630,6 +652,7 @@ function main() {
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "1.0.0")
             upgrade_100_to_101
@@ -637,26 +660,34 @@ function main() {
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "1.0.1")
             upgrade_101_to_102
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "1.0.2")
             upgrade_102_to_103
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "1.0.3")
             upgrade_103_to_104
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "1.0.4")
             upgrade_104_to_105
+            upgrade_105_to_106
             ;;
         "1.0.5")
+            upgrade_105_to_106
+            ;;
+        "1.0.6")
             print_ok "Your system is already up to date. No update available."
             exit 0
             ;;
