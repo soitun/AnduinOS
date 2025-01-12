@@ -1,9 +1,9 @@
 # AnduinOS
 
-[![GPL licensed](https://img.shields.io/badge/license-GPL-blue.svg)](https://gitlab.aiursoft.cn/anduin/anduinos/-/blob/1.2/LICENSE)
+[![GPL licensed](https://img.shields.io/badge/license-GPL-blue.svg)](https://gitlab.aiursoft.cn/anduin/anduinos/-/blob/1.3/LICENSE)
 [![Discussions](https://img.shields.io/badge/discussions-join-blue)](https://github.com/Anduin2017/AnduinOS/discussions)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fwww.anduinos.com%2F)](https://www.anduinos.com/)
-[![ManHours](https://manhours.aiursoft.cn/r/gitlab.aiursoft.cn/anduin/anduinos.svg)](https://gitlab.aiursoft.cn/anduin/anduinos/-/commits/1.2?ref_type=heads)
+[![ManHours](https://manhours.aiursoft.cn/r/gitlab.aiursoft.cn/anduin/anduinos.svg)](https://gitlab.aiursoft.cn/anduin/anduinos/-/commits/1.3?ref_type=heads)
 
 <img align="right" width="100" height="100" src="./src/mods/30-gnome-extension-arcmenu-patch/logo.svg">
 
@@ -24,10 +24,10 @@ To edit the build parameters, modify the `./src/args.sh` file.
 The first two parts of the `TARGET_BUILD_VERSION` MUST be the same as the git branch name. For example:
 
 ```bash
-TARGET_BUILD_VERSION="1.2.0"
+TARGET_BUILD_VERSION="1.3.0"
 ```
 
-Then the git branch name MUST be `1.2`.
+Then the git branch name MUST be `1.3`.
 
 To build the OS, run the following command:
 
