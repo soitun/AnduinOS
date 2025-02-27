@@ -7,6 +7,7 @@ set -o pipefail         # exit on pipeline error
 set -u                  # treat unset variable as error
 export DEBIAN_FRONTEND=noninteractive
 export LATEST_VERSION="1.3.0"
+export CODE_NAME="plucky"
 export OS_ID="AnduinOS"
 export CURRENT_VERSION=$(cat /etc/lsb-release | grep DISTRIB_RELEASE | cut -d "=" -f 2)
 
@@ -61,15 +62,30 @@ function ensureCurrentOsAnduinOs() {
 }
 
 function applyLsbRelease() {
-    # Update /etc/lsb-release
-    sudo sed -i "s/DISTRIB_RELEASE=.*/DISTRIB_RELEASE=${LATEST_VERSION}/" /etc/lsb-release
-    sudo sed -i "s/DISTRIB_DESCRIPTION=.*/DISTRIB_DESCRIPTION=\"AnduinOS ${LATEST_VERSION}\"/" /etc/lsb-release
-    
+
     # Update /etc/os-release
-    sudo sed -i "s/VERSION_ID=.*/VERSION_ID=\"${LATEST_VERSION}\"/" /etc/os-release
-    sudo sed -i "s/ID=.*/ID=\"${OS_ID}\"/" /etc/os-release
-    sudo sed -i "s/VERSION=.*/VERSION=\"${LATEST_VERSION} (plucky)\"/" /etc/os-release
-    sudo sed -i "s/PRETTY_NAME=.*/PRETTY_NAME=\"AnduinOS ${LATEST_VERSION}\"/" /etc/os-release
+    sudo bash -c "cat > /etc/os-release <<EOF
+PRETTY_NAME=\"AnduinOS $LATEST_VERSION\"
+NAME=\"AnduinOS\"
+VERSION_ID=\"$LATEST_VERSION\"
+VERSION=\"$LATEST_VERSION ($CODE_NAME)\"
+VERSION_CODENAME=$CODE_NAME
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL=\"https://www.anduinos.com/\"
+SUPPORT_URL=\"https://github.com/Anduin2017/AnduinOS/discussions\"
+BUG_REPORT_URL=\"https://github.com/Anduin2017/AnduinOS/issues\"
+PRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"
+UBUNTU_CODENAME=$CODE_NAME
+EOF"
+
+    # Update /etc/lsb-release
+    sudo bash -c "cat > /etc/lsb-release <<EOF
+DISTRIB_ID=AnduinOS
+DISTRIB_RELEASE=$LATEST_VERSION
+DISTRIB_CODENAME=$CODE_NAME
+DISTRIB_DESCRIPTION=\"AnduinOS $LATEST_VERSION\"
+EOF"
 
     # Update /etc/issue
     echo "AnduinOS ${LATEST_VERSION} \n \l
