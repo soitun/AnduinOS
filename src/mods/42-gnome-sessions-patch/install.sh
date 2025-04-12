@@ -7,7 +7,7 @@ sed -i 's/Ubuntu/AnduinOS/g' /usr/share/gnome-session/sessions/ubuntu.session
 judge "Set up /usr/share/gnome-sessions/sessions"
 
 print_ok "Setting up /usr/share/xsessions..."
-rm /usr/share/xsessions/gnome*
+rm /usr/share/xsessions/gnome* || true
 
 mv /usr/share/xsessions/ubuntu.desktop /usr/share/xsessions/anduinos.desktop
 mv /usr/share/xsessions/ubuntu-xorg.desktop /usr/share/xsessions/anduinos-xorg.desktop
