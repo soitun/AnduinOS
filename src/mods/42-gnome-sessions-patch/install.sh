@@ -16,7 +16,7 @@ sed -i 's/Name=Ubuntu/Name=AnduinOS/g' /usr/share/xsessions/anduinos-xorg.deskto
 judge "Set up /usr/share/xsessions"
 
 print_ok "Setting up /usr/share/wayland-sessions..."
-rm /usr/share/wayland-sessions/gnome*
+rm /usr/share/wayland-sessions/gnome* || true
 
 mv /usr/share/wayland-sessions/ubuntu.desktop /usr/share/wayland-sessions/anduinos.desktop
 mv /usr/share/wayland-sessions/ubuntu-wayland.desktop /usr/share/wayland-sessions/anduinos-wayland.desktop
