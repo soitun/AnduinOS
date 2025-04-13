@@ -34,6 +34,7 @@ echo "Language environment has been set to $LANG_MODE"
 export DEBIAN_FRONTEND=noninteractive
 export SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 export HOME=/root
+
 # Can be: jammy noble oracular plucky
 export TARGET_UBUNTU_VERSION="plucky"
 
@@ -60,3 +61,9 @@ export TARGET_PACKAGE_REMOVE="
     laptop-detect \
     os-prober \
 "
+
+# Packages will be installed during the installation process
+export INPUT_METHOD_INSTALL=""
+
+# Boolean indicator for whether to install anduinos-ibus-rime
+export CONFIG_IBUS_RIME="false"
