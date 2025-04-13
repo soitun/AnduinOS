@@ -77,6 +77,7 @@ apt install -y \
     baobab \
     file-roller \
     ibus \
+    ibus-gtk ibus-gtk3 ibus-gtk4 im-config \
     gnome-sushi \
     qalculate-gtk \
     yelp \
