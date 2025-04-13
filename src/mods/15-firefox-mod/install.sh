@@ -31,6 +31,6 @@ EOF
     print_ok "Installing Firefox"
     apt install -y firefox --no-install-recommends
     judge "Install Firefox"
-elif
+else
     print_ok "No need to install deb firefox, please check the config file"
 fi
