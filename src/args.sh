@@ -1,7 +1,14 @@
 #!/bin/bash
 
 #==========================
-# Basic Information
+# Environment Variables
+#==========================
+export DEBIAN_FRONTEND=noninteractive
+export SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+export HOME=/root
+
+#==========================
+# Language Information
 #==========================
 
 # Set the language environment. Can be: en_US, zh_CN, zh_TW, zh_HK, ja_JP, ko_KR, vi_VN, th_TH, de_DE, fr_FR, es_ES, ru_RU, it_IT, pt_BR, pt_PT, ar_SA, nl_NL, sv_SE, pl_PL, tr_TR
@@ -31,10 +38,9 @@ export LANGUAGE_PACKS="language-pack-$LANG_PACK_CODE* language-pack-gnome-$LANG_
 # Continue with the rest of the script
 echo "Language environment has been set to $LANG_MODE"
 
-export DEBIAN_FRONTEND=noninteractive
-export SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-export HOME=/root
-
+#==========================
+# OS system information
+#==========================
 # Can be: jammy noble oracular plucky
 export TARGET_UBUNTU_VERSION="plucky"
 
@@ -53,6 +59,9 @@ export TARGET_BUILD_VERSION="1.3.0"
 # Fork version. Must be in the format of x.y
 export TARGET_BUILD_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
+#===========================
+# Installation customization
+#===========================
 # Packages will be uninstalled during the installation process
 export TARGET_PACKAGE_REMOVE="
     ubiquity \
@@ -62,14 +71,33 @@ export TARGET_PACKAGE_REMOVE="
     os-prober \
 "
 
+#============================
+# Store experience customization
+#============================
+# Can be "none", "web", "flatpak", "snap"
+# none:     no app store
+# web:      use a web shortcut to browse the app store
+# flatpak:  use gnome software to browse the app store, and install flatpak as plugin
+# snap:     use gnome software to browse the app store, and install snap as plugin
+export STORE_PROVIDER="flatpak"
+
+#============================
+# Browser configuration
+#============================
+# TODO: Refactor to a new environment variable: FIREFOX_PROVIDER that can be: deb, flatpak or snap
+# Whether to install firefox with apt. If true, it will be installed from the PPA.
+export DEB_FIREFOX="true"
+export FIREFOX_MIRROR="mirror-ppa.aiursoft.cn"
+
+# Whether to install Firefox from Flathub. If true, it will be installed from Flathub
+# Must set STORE_PROVIDER to "flatpak" before using this option
+export FLATPAK_FIREFOX="false"
+
+#============================
+# Input method configuration
+#============================
 # Packages will be installed during the installation process
 export INPUT_METHOD_INSTALL=""
 
 # Boolean indicator for whether to install anduinos-ibus-rime
 export CONFIG_IBUS_RIME="false"
-
-# Whether to install firefox. If Deb, it will be installed from the PPA. If Flatpak, it will be installed from Flathub.
-export DEB_FIREFOX="true"
-export FIREFOX_MIRROR="mirror-ppa.aiursoft.cn"
-
-export FLATPAK_FIREFOX="false"
