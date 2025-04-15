@@ -22,19 +22,25 @@ cp ./greeter.dconf-defaults.ini /etc/gdm3/greeter.dconf-defaults
 dconf update
 judge "Patch global gdm3 dconf settings"
 
+# IF CONFIG_INPUT_METHOD is not set, exit.
+if [ -z "$CONFIG_INPUT_METHOD" ]; then
+    print_error "Error: CONFIG_INPUT_METHOD is not set."
+    exit 1
+fi
+
 print_ok "Configuring input sources from CONFIG_INPUT_METHOD"
 dconf write /org/gnome/desktop/input-sources/sources "$CONFIG_INPUT_METHOD"
 judge "Configure input sources"
 
+# IF CONFIG_WEATHER_LOCATION is not set, exit.
+if [ -z "$CONFIG_WEATHER_LOCATION" ]; then
+    print_error "Error: CONFIG_WEATHER_LOCATION is not set."
+    exit 1
+fi
+
 print_ok "Configuring weather location from CONFIG_WEATHER_LOCATION"
 dconf write /org/gnome/shell/extensions/openweatherrefined/locs "$CONFIG_WEATHER_LOCATION"
 judge "Configure weather location"
-
-print_ok "Copying root's dconf settings to /etc/skel"
-mkdir -p /etc/skel/.config/dconf
-cp /root/.config/dconf/user /etc/skel/.config/dconf/user
-judge "Copy root's dconf settings to /etc/skel"
-
 
 print_ok "Copying root's dconf settings to /etc/skel"
 mkdir -p /etc/skel/.config/dconf
