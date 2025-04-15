@@ -125,3 +125,25 @@ sed -i "/^X-GNOME-FullName=/a X-GNOME-FullName[pl_PL]=Analiza użycia dysku" /us
 sed -i "/^X-GNOME-FullName=/a X-GNOME-FullName[tr_TR]=Disk Kullanım Analizi" /usr/share/applications/org.gnome.baobab.desktop
 
 judge "Patch baobab localization"
+
+print_ok "Patching qalculate localization..."
+sed -i "/^Name=/a Name[zh_CN]=计算器" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[zh_TW]=計算器" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[zh_HK]=計算器" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[ja_JP]=計算機" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[ko_KR]=계산기" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[vi_VN]=Máy tính" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[th_TH]=เครื่องคิดเลข" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[de_DE]=Taschenrechner" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[fr_FR]=Calculatrice" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[es_ES]=Calculadora" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[ru_RU]=Калькулятор" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[it_IT]=Calcolatrice" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[pt_PT]=Calculadora" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[pt_BR]=Calculadora" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[ar_SA]=آلة حاسبة" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[nl_NL]=Rekenmachine" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[sv_SE]=Kalkylator" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[pl_PL]=Kalkulator" /usr/share/applications/qalculate-gtk.desktop
+sed -i "/^Name=/a Name[tr_TR]=Hesap Makinesi" /usr/share/applications/qalculate-gtk.desktop
+judge "Patch qalculate localization"
