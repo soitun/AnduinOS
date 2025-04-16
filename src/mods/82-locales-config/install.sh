@@ -46,7 +46,6 @@ if [ -z "$TIMEZONE" ]; then
     exit 1
 fi
 
-print_ok "Configuring timezone to $TIMEZONE..."
 if [ ! -f /usr/share/zoneinfo/$TIMEZONE ]; then
     print_error "Error: /usr/share/zoneinfo/$TIMEZONE not found."
     exit 1
