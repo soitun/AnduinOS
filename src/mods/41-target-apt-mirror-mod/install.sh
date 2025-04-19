@@ -16,5 +16,5 @@ EOF
 judge "Set up apt sources to $MIRROR"
 
 print_info "Setting up apt sources for installed system..."
-apt-modernize-sources
+apt modernize-sources
 judge "Set up apt sources for installed system"
