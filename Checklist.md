@@ -7,6 +7,7 @@ Test at least `en_US` and `zh_CN` locales.
 * Boot the image with **UEFI**. (This is to test the UEFI grub installation)
 * Ensure there is no overview on startup.
 * Ensure the cursor theme is applied.
+* Ensure the resolution is same with the virtual machine.
 * Ensure the timezone and language is localized.
 * Ensure right clicking the desktop can open console here.
 * Ensure desktop icons are shown.

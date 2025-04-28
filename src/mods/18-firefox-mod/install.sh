@@ -7,7 +7,7 @@ if [ "$FIREFOX_PROVIDER" == "none" ]; then
 elif [ "$FIREFOX_PROVIDER" == "deb" ]; then
     print_ok "Adding Mozilla Firefox PPA"
     waitNetwork
-    apt install -y software-properties-common
+    apt install $INTERACTIVE software-properties-common
     add-apt-repository -y ppa:mozillateam/ppa
     if [ -n "$FIREFOX_MIRROR" ]; then
         print_ok "Replace ppa.launchpadcontent.net with $FIREFOX_MIRROR to get faster download speed"
@@ -31,7 +31,7 @@ EOF
     judge "Update package list"
 
     print_ok "Installing Firefox and locale package $FIREFOX_LOCALE_PACKAGE from PPA: $FIREFOX_MIRROR"
-    apt install -y firefox $FIREFOX_LOCALE_PACKAGE --no-install-recommends
+    apt install $INTERACTIVE firefox $FIREFOX_LOCALE_PACKAGE --no-install-recommends
     judge "Install Firefox"
 elif [ "$FIREFOX_PROVIDER" == "flatpak" ]; then
     print_ok "Installing firefox from flathub..."

@@ -4,7 +4,7 @@ set -u                  # treat unset variable as error
 
 print_ok "Installing ubiquity (Ubuntu installer)..."
 waitNetwork
-apt install -y \
+apt install $INTERACTIVE \
     ubiquity \
     ubiquity-casper \
     ubiquity-frontend-gtk \

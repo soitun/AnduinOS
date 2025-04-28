@@ -55,7 +55,7 @@ function waitNetwork() {
 function install_opt() {
     print_ok "Installing $1... if available…"
     if apt-cache show $1 >/dev/null 2>&1; then
-        apt install -y $1 --no-install-recommends
+        apt install $INTERACTIVE -y $1 --no-install-recommends
         judge "Install $1"
     else
         print_warn "Package $1 is not available for $TARGET_UBUNTU_VERSION"

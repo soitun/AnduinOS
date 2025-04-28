@@ -6,7 +6,7 @@ set -u                  # treat unset variable as error
 # If $INPUT_METHOD_INSTALL is not empty, install the packages
 if [ -n "$INPUT_METHOD_INSTALL" ]; then
     print_ok "Installing input method packages: $INPUT_METHOD_INSTALL"
-    apt install -y --no-install-recommends \
+    apt install $INTERACTIVE --no-install-recommends \
         $INPUT_METHOD_INSTALL
     judge "Install input method packages"
 else
@@ -16,7 +16,7 @@ fi
 # If config ibus rime:
 if [ "$CONFIG_IBUS_RIME" == "true" ]; then
     print_ok "Installing im-config..."
-    apt install im-config -y --no-install-recommends
+    apt install $INTERACTIVE im-config --no-install-recommends
     judge "Install im-config"
 
     print_ok "Setting up ibus..."

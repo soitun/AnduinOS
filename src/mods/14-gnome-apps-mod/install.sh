@@ -6,9 +6,8 @@ print_ok "Installing gnome-shell and other gnome applications"
 waitNetwork
 
 print_ok "Installing basic CLI tools..."
-apt install -y \
+apt install $INTERACTIVE \
     apt-transport-https \
-    ca-certificates \
     cifs-utils \
     cloud-init \
     coreutils \
@@ -30,19 +29,32 @@ apt install -y \
     sassc \
     smartmontools \
     software-properties-common \
+    gnome-remote-desktop \
     squashfs-tools \
     sysstat \
-    thermald \
     traceroute \
-    unzip \
     vim \
     wget \
     whiptail \
-    zip --no-install-recommends
+    gdisk \
+    eatmydata \
+    patch \
+    less \
+    gnupg-l10n \
+    gpg-wks-client \
+    upower \
+    appstream \
+    packagekit-tools \
+    python3-babel \
+    unattended-upgrades \
+    exfatprogs \
+    vdpau-driver-all \
+    xxd \
+    --no-install-recommends
 judge "Install basic CLI tools"
 
 print_ok "Installing gnome basic sessions..."
-apt install -y \
+apt install $INTERACTIVE \
     gnome-shell \
     ubuntu-session \
     yaru-theme-sound \
@@ -51,13 +63,15 @@ apt install -y \
     gnome-menus \
     gnome-shell-extensions \
     spice-vdagent \
-    gdm3 --no-install-recommends
+    xserver-xorg \
+    gdm3 \
+    --no-install-recommends
 judge "Install gnome basic sessions"
 
 install_opt ubuntu-session-xsession
 
 print_ok "Installing plymouth..."
-apt install -y \
+apt install $INTERACTIVE \
     plymouth \
     plymouth-label \
     plymouth-theme-spinner \
@@ -73,33 +87,35 @@ case $TARGET_UBUNTU_VERSION in
         print_warn "Package wireless-tools is not available for $TARGET_UBUNTU_VERSION"
         ;;
 esac
-apt install -y \
+apt install $INTERACTIVE \
     openvpn \
     network-manager-openvpn \
     network-manager-openvpn-gnome \
-    network-manager-pptp-gnome --no-install-recommends
+    network-manager-pptp \
+    network-manager-pptp-gnome \
+    --no-install-recommends
 judge "Install network manager vpn packages"
 
 print_ok "Installing nautilus..."
-apt install -y nautilus --no-install-recommends
+apt install $INTERACTIVE nautilus --no-install-recommends
 judge "Install nautilus"
 
 print_ok "Installing gnome extension utilities..."
-apt install -y \
+apt install $INTERACTIVE \
     gnome-shell-extension-prefs \
     gnome-shell-extension-desktop-icons-ng \
     gnome-shell-extension-appindicator --no-install-recommends
 judge "Install gnome extension utilities"
 
 print_ok "Installing gnome additional applications $DEFAULT_APPS..."
-apt install -y \
+apt install $INTERACTIVE \
     gnome-control-center \
     $DEFAULT_APPS \
     --no-install-recommends
 judge "Install gnome additional applications"
 
 print_ok "Installing gnome multimedia support..."
-apt install -y \
+apt install $INTERACTIVE \
     gstreamer1.0-libav \
     gstreamer1.0-alsa \
     gstreamer1.0-vaapi \
@@ -109,34 +125,44 @@ apt install -y \
 judge "Install gstreamer"
 
 print_ok "Installing gnome console..."
-apt install -y \
+apt install $INTERACTIVE \
     gnome-console  --no-install-recommends
 judge "Install gnome console"
 
 print_ok "Installing ibus..."
-apt install -y \
+apt install $INTERACTIVE \
     ibus \
     ibus-gtk ibus-gtk3 ibus-gtk4 im-config --no-install-recommends
 judge "Install ibus"
 
 print_ok "Installing gnome fonts..."
-apt install -y \
+apt install $INTERACTIVE \
     fonts-noto-cjk fonts-noto-core fonts-noto-mono fonts-noto-color-emoji --no-install-recommends
 judge "Install gnome fonts"
 
 print_ok "Installing gnome printer support..."
-apt install -y \
-    cups system-config-printer cups-bsd --no-install-recommends
+apt install $INTERACTIVE \
+    cups \
+    system-config-printer \
+    cups-bsd \
+    cups-browsed \
+    cups-pk-helper \
+    ipp-usb \
+    --no-install-recommends
 judge "Install gnome printer support"
 
 print_ok "Installing ubuntu drivers support..."
-apt install -y \
+apt install $INTERACTIVE \
     ubuntu-drivers-common alsa-utils alsa-base fprintd --no-install-recommends
 judge "Install ubuntu drivers support"
 
 print_ok "Installing python3..."
-apt install -y \
-    python3 python3-pip python-is-python3 pipx --no-install-recommends
+apt install $INTERACTIVE \
+    python3 \
+    python3-pip \
+    python-is-python3 \
+    pipx \
+    --no-install-recommends
 judge "Install python3"
 
 print_ok "Remove the default htop.desktop file"
@@ -148,5 +174,5 @@ rm /usr/share/applications/vim.desktop
 judge "Remove the default vim.desktop file"
 
 print_ok "Installing $LANGUAGE_PACKS language packs"
-apt install -y $LANGUAGE_PACKS --no-install-recommends
+apt install $INTERACTIVE $LANGUAGE_PACKS --no-install-recommends
 judge "Install language packs"

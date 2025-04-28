@@ -2,6 +2,11 @@ set -e                  # exit on error
 set -o pipefail         # exit on pipeline error
 set -u                  # treat unset variable as error
 
+# remove unused and clean up apt cache
+print_ok "Removing unused packages..."
+apt autoremove -y --purge
+judge "Remove unused packages"
+
 print_ok "Purging unnecessary packages"
 packages=(
     gnome-mahjongg
@@ -34,7 +39,8 @@ packages=(
 
 for pkg in "${packages[@]}"; do
     if dpkg -l "$pkg" 2>/dev/null | grep -q '^ii'; then
-        echo "Error: package '$pkg' is installed." >&2
-        exit 1
+        print_warn "Error: package '$pkg' is installed." >&2
+        apt autoremove -y --purge "$pkg"
+        judge "Purge package $pkg"
     fi
 done

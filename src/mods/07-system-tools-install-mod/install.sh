@@ -4,11 +4,12 @@ set -u                  # treat unset variable as error
 
 print_ok "Installing basic system tool packages..."
 waitNetwork
-apt install -y \
+apt install $INTERACTIVE \
     apparmor \
-    apt-utils \
     bash-completion \
     bind9-dnsutils \
+    bolt \
+    build-essential \
     busybox-static \
     command-not-found \
     coreutils \
@@ -26,7 +27,6 @@ apt install -y \
     ftp \
     gettext \
     grub-common \
-    grub-efi-amd64 \
     grub2-common \
     hdparm \
     hwdata \
@@ -68,7 +68,20 @@ apt install -y \
     wget \
     xz-utils \
     zstd \
-    zip --no-install-recommends
+    zip \
+    powermgmt-base \
+    modemmanager \
+    dbus-user-session \
+    dnsmasq-base \
+    wpasupplicant \
+    linux-sysctl-defaults \
+    python3-rich\
+    systemd-hwe-hwdb \
+    efibootmgr \
+    libpam-cap \
+    ibverbs-providers \
+    xauth \
+    --no-install-recommends
 judge "Install basic system tool packages"
 
 print_ok "Fixing the package base-files to avoid system upgrading it..."
