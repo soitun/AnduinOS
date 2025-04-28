@@ -2,7 +2,7 @@ set -e                  # exit on error
 set -o pipefail         # exit on pipeline error
 set -u                  # treat unset variable as error
 
-waitNetwork
+wait_network
 print_ok "Installing basic system tool packages..."
 apt install $INTERACTIVE \
     apparmor \

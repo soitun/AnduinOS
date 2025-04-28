@@ -6,7 +6,7 @@ if [ "$FIREFOX_PROVIDER" == "none" ]; then
     print_ok "We don't need to install firefox, please check the config file"
 elif [ "$FIREFOX_PROVIDER" == "deb" ]; then
     print_ok "Adding Mozilla Firefox PPA"
-    waitNetwork
+    wait_network
     apt install $INTERACTIVE software-properties-common
     add-apt-repository -y ppa:mozillateam/ppa
     if [ -n "$FIREFOX_MIRROR" ]; then

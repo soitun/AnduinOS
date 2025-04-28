@@ -5,13 +5,13 @@ set -u                  # treat unset variable as error
 # we need to install systemd first, to configure machine id
 print_ok "Installing systemd"
 
-# Don't wait for network, because curl is not available
-#waitNetwork
+# Don't wait for network, because wget is not available
+#wait_network
 apt update
 apt install $INTERACTIVE \
     libterm-readline-gnu-perl \
     systemd-sysv \
-    curl \
+    wget \
     krb5-locales \
     publicsuffix \
     libnss-systemd \

@@ -3,7 +3,7 @@ set -o pipefail         # exit on pipeline error
 set -u                  # treat unset variable as error
 
 print_ok "Installing gnome-shell and other gnome applications"
-waitNetwork
+wait_network
 
 print_ok "Installing basic CLI tools..."
 apt install $INTERACTIVE \
@@ -177,7 +177,7 @@ rm /usr/share/applications/htop.desktop || true
 judge "Remove the default htop.desktop file"
 
 print_ok "Remove the default vim.desktop file"
-rm /usr/share/applications/vim.desktop
+rm /usr/share/applications/vim.desktop || true
 judge "Remove the default vim.desktop file"
 
 print_ok "Installing $LANGUAGE_PACKS language packs"

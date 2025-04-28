@@ -3,7 +3,7 @@ set -o pipefail         # exit on pipeline error
 set -u                  # treat unset variable as error
 
 print_ok "Installing capser (live-boot)..."
-waitNetwork
+wait_network
 apt install $INTERACTIVE \
     casper \
     discover \

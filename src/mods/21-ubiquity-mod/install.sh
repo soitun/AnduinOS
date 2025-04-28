@@ -15,7 +15,7 @@ apt install $INTERACTIVE \
 judge "Install install tools"
 
 print_ok "Installing ubiquity (Ubuntu installer)..."
-waitNetwork
+wait_network
 apt install $INTERACTIVE \
     ubiquity \
     ubiquity-casper \
