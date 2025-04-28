@@ -112,9 +112,9 @@ function umount_folers() {
     judge "Clean up new_building_os /root/mods"
 
     print_ok "Unmounting /proc /sys /dev/pts within chroot..."
-    sudo chroot new_building_os umount /proc || sudo chroot new_building_os umount -lf /proc
-    sudo chroot new_building_os umount /sys || sudo chroot new_building_os umount -lf /sys
     sudo chroot new_building_os umount /dev/pts || sudo chroot new_building_os umount -lf /dev/pts
+    sudo chroot new_building_os umount /sys || sudo chroot new_building_os umount -lf /sys
+    sudo chroot new_building_os umount /proc || sudo chroot new_building_os umount -lf /proc
     judge "Unmount /proc /sys /dev/pts"
 
     print_ok "Unmounting /dev /run outside of chroot..."
