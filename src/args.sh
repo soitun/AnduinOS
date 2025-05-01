@@ -45,8 +45,8 @@ echo "Language environment has been set to $LANG_MODE"
 #==========================
 # OS system information
 #==========================
-# Can be: jammy noble oracular plucky
-export TARGET_UBUNTU_VERSION="plucky"
+# Can be: jammy noble oracular plucky questing
+export TARGET_UBUNTU_VERSION="questing"
 
 # See https://docs.anduinos.com/Install/Select-Best-Apt-Source.html
 export BUILD_UBUNTU_MIRROR="http://mirror.aiursoft.cn/ubuntu/"
