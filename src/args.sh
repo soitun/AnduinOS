@@ -214,7 +214,6 @@ export DEFAULT_APPS="
     gnome-characters \
     gnome-bluetooth \
     gnome-power-manager \
-    gnome-snapshot \
     gnome-maps \
     gnome-font-viewer
 "
