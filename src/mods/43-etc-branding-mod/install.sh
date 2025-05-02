@@ -11,6 +11,7 @@ DISTRIB_DESCRIPTION="$TARGET_BUSINESS_NAME $TARGET_BUILD_VERSION"
 EOF
 judge "Update lsb-release"
 
+# Mark ID as ubuntu to support some Ubuntu features, like add-apt-repository
 cat << EOF > /etc/os-release
 PRETTY_NAME="$TARGET_BUSINESS_NAME $TARGET_BUILD_VERSION"
 NAME="$TARGET_BUSINESS_NAME"
@@ -25,4 +26,5 @@ BUG_REPORT_URL="https://github.com/Anduin2017/AnduinOS/issues"
 PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
 UBUNTU_CODENAME=$TARGET_UBUNTU_VERSION
 EOF
+# The ID have to be ubuntu to support some Ubuntu features, like add-apt-repository
 judge "Update os-release"

@@ -6,7 +6,9 @@
 set -e                  # exit on error
 set -o pipefail         # exit on pipeline error
 set -u                  # treat unset variable as error
-source ./args.sh
+export SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+source $SCRIPT_DIR/shared.sh
+source $SCRIPT_DIR/args.sh
 
 function check_host() {
 
@@ -40,7 +42,17 @@ function clean() {
 function setup_host() {
     print_ok "Setting up host environment..."
     sudo apt update
-    sudo apt install -y binutils debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin grub2-common mtools dosfstools unzip
+    sudo apt install -y \
+        binutils \
+        debootstrap \
+        squashfs-tools \
+        xorriso \
+        grub-pc-bin \
+        grub-efi-amd64 \
+        grub2-common \
+        mtools \
+        dosfstools \
+        --no-install-recommends
     judge "Install required tools"
 
     print_ok "Creating new_building_os directory..."
@@ -59,6 +71,10 @@ function download_base_system() {
 }
 
 function mount_folers() {
+    print_ok "Reloading systemd daemon..."
+    sudo systemctl daemon-reload
+    judge "Reload systemd daemon"
+
     print_ok "Mounting /dev /run from host to new_building_os..."
     sudo mount --bind /dev new_building_os/dev
     sudo mount --bind /run new_building_os/run
@@ -72,7 +88,8 @@ function mount_folers() {
 
     print_ok "Copying mods to new_building_os/root..."
     sudo cp -r $SCRIPT_DIR/mods new_building_os/root/mods
-    sudo cp ./args.sh new_building_os/root/mods/args.sh
+    sudo cp ./args.sh   new_building_os/root/mods/args.sh
+    sudo cp ./shared.sh new_building_os/root/mods/shared.sh
 }
 
 function run_chroot() {
@@ -96,9 +113,9 @@ function umount_folers() {
     judge "Clean up new_building_os /root/mods"
 
     print_ok "Unmounting /proc /sys /dev/pts within chroot..."
-    sudo chroot new_building_os umount /proc || sudo chroot new_building_os umount -lf /proc
-    sudo chroot new_building_os umount /sys || sudo chroot new_building_os umount -lf /sys
     sudo chroot new_building_os umount /dev/pts || sudo chroot new_building_os umount -lf /dev/pts
+    sudo chroot new_building_os umount /sys || sudo chroot new_building_os umount -lf /sys
+    sudo chroot new_building_os umount /proc || sudo chroot new_building_os umount -lf /proc
     judge "Unmount /proc /sys /dev/pts"
 
     print_ok "Unmounting /dev /run outside of chroot..."
@@ -123,35 +140,11 @@ function build_iso() {
     
     print_ok "Generating grub.cfg..."
     touch image/$TARGET_NAME
-    # TRY mode 
-    # (Add 'toram' to boot options will load the whole system into RAM)
-    # * Enfoce user name `ubuntu` and hostname `ubuntu`
-    # * Enforce X11
-    # * Couldn't logout
-    # * Couldn't lock screen
-    # * On the desktop there will be a "Install" icon for Ubiquity installer
+    cp $SCRIPT_DIR/args.sh image/$TARGET_NAME
+    judge "Copy build args to disk"
 
-    # Install mode
-    # * Enfoce user name `ubuntu` and hostname `ubuntu`
-    # * Enforce X11
-    # * Couldn't logout
-    # * Couldn't lock screen
-    # * Desktop is enabled. All gnome extensions are disabled.
-    # * Will show Ubiquity installer by default
-    # * Ubiquity installer won't ask if you want to keep trying this OS
-
-    # After installation
-    # * Requires login. User name is set during installation
-    # * Nvidia users will enforce X11. Others will use Wayland
-    # * Can logout
-    # * Can lock screen
-    # * Desktop is enabled. All gnome extensions are enabled
-    # * No Ubiquity installer
-    # * No "Install" icon on the desktop
-
-    # Those configurations are setup in new_building_os/usr/share/initramfs-tools/scripts/casper-bottom/25configure_init
-    TRY_TEXT="Try $TARGET_BUSINESS_NAME"
-    INSTALL_TEXT="Install $TARGET_BUSINESS_NAME"
+    # Configurations are setup in new_building_os/usr/share/initramfs-tools/scripts/casper-bottom/25configure_init
+    TRY_TEXT="Install $TARGET_BUSINESS_NAME"
     cat << EOF > image/isolinux/grub.cfg
 
 search --set=root --file /$TARGET_NAME
@@ -159,17 +152,29 @@ search --set=root --file /$TARGET_NAME
 insmod all_video
 
 set default="0"
-set timeout=30
+set timeout=10
 
 menuentry "$TRY_TEXT" {
-   linux /casper/vmlinuz boot=casper nopersistent quiet splash ---
-   initrd /casper/initrd
+   set gfxpayload=keep
+   linux   /casper/vmlinuz boot=casper nopersistent quiet splash ---
+   initrd  /casper/initrd
 }
 
-menuentry "$INSTALL_TEXT" {
-   linux /casper/vmlinuz boot=casper only-ubiquity quiet splash ---
-   initrd /casper/initrd
+menuentry "$TRY_TEXT (Safe Graphics)" {
+    set gfxpayload=keep
+    linux   /casper/vmlinuz boot=casper nopersistent nomodeset ---
+    initrd  /casper/initrd
 }
+
+if [ "\$grub_platform" == "efi" ]; then
+    menuentry "Boot from next volume" {
+        exit 1
+    }
+
+    menuentry "UEFI Firmware Settings" {
+        fwsetup
+    }
+fi
 EOF
     judge "Generate grub.cfg"
 
@@ -189,8 +194,8 @@ EOF
     print_ok "Compressing rootfs as squashfs on /casper/filesystem.squashfs..."
     sudo mksquashfs new_building_os image/casper/filesystem.squashfs \
         -noappend -no-duplicates -no-recovery \
-        -wildcards \
-        -comp xz -b 1M -Xdict-size 100% \
+        -wildcards -b 1M \
+        -comp zstd -Xcompression-level 19 \
         -e "var/cache/apt/archives/*" \
         -e "root/*" \
         -e "root/.*" \
@@ -221,7 +226,7 @@ EOF
     cat << EOF > image/README.md
 # $TARGET_BUSINESS_NAME $TARGET_BUILD_VERSION
 
-$TARGET_BUSINESS_NAME is a custom Debian-based Linux distribution that aims to facilitate developers transitioning from Windows to Ubuntu by maintaining familiar operational habits and workflows.
+$TARGET_BUSINESS_NAME is a custom Ubuntu-based Linux distribution that aims to facilitate developers transitioning from Windows to Linux by maintaining familiar operational habits and workflows.
 
 This image is built with the following configurations:
 
@@ -229,7 +234,7 @@ This image is built with the following configurations:
 - **Version**: $TARGET_BUILD_VERSION
 - **Date**: $DATE
 
-$TARGET_BUSINESS_NAME is distributed with GPLv3 license. You can find the license on [GPL-v3](https://gitlab.aiursoft.cn/anduin/anduinos/-/blob/master/LICENSE).
+$TARGET_BUSINESS_NAME is distributed with GPLv3 license. You can find the license on [GPL-v3](https://gitlab.aiursoft.cn/anduin/anduinos/-/blob/$TARGET_BUILD_BRANCH/LICENSE).
 
 ## Please verify the checksum!!!
 
@@ -245,16 +250,7 @@ No output indicates that the image is correct.
 
 ## How to use
 
-Before starting, you **must** set Secure Boot to \`trust thrid-party CA UEFI Keys\` in the BIOS settings.
-
 Press F12 to enter the boot menu when you start your computer. Select the USB drive to boot from.
-
-You will see two options:
-
-1. **Try $TARGET_BUSINESS_NAME**: Boot into $TARGET_BUSINESS_NAME without installing it. This is a good way to test the system before installing it.
-2. **Install $TARGET_BUSINESS_NAME**: Install $TARGET_BUSINESS_NAME on your computer. This will erase all data on the target disk.
-
-Select the option you want and press Enter.
 
 ## More information
 
@@ -291,7 +287,7 @@ EOF
     judge "Create hybrid boot image"
 
     print_ok "Creating .disk/info..."
-    echo "$TARGET_BUSINESS_NAME $TARGET_BUILD_VERSION "Jammy Jellyfish" - Release amd64 ($(date +%Y%m%d))" | sudo tee .disk/info
+    echo "$TARGET_BUSINESS_NAME $TARGET_BUILD_VERSION $TARGET_UBUNTU_VERSION - Release amd64 ($(date +%Y%m%d))" | sudo tee .disk/info
     judge "Create .disk/info"
 
     print_ok "Creating md5sum.txt..."
@@ -305,24 +301,25 @@ EOF
         -full-iso9660-filenames \
         -volid "$TARGET_NAME" \
         -eltorito-boot boot/grub/bios.img \
-        -no-emul-boot \
-        -boot-load-size 4 \
-        -boot-info-table \
-        --eltorito-catalog boot/grub/boot.cat \
-        --grub2-boot-info \
-        --grub2-mbr /usr/lib/grub/i386-pc/boot_hybrid.img \
+            -no-emul-boot \
+            -boot-load-size 4 \
+            -boot-info-table \
+            --eltorito-catalog boot/grub/boot.cat \
+            --grub2-boot-info \
+            --grub2-mbr /usr/lib/grub/i386-pc/boot_hybrid.img \
         -eltorito-alt-boot \
-        -e EFI/efiboot.img \
-        -no-emul-boot \
-        -append_partition 2 0xef isolinux/efiboot.img \
+            -e EFI/efiboot.img \
+            -no-emul-boot \
+            -append_partition 2 0xef isolinux/efiboot.img \
         -output "$SCRIPT_DIR/$TARGET_NAME.iso" \
         -m "isolinux/efiboot.img" \
         -m "isolinux/bios.img" \
         -graft-points \
-           "/EFI/efiboot.img=isolinux/efiboot.img" \
-           "/boot/grub/grub.cfg=isolinux/grub.cfg" \
-           "/boot/grub/bios.img=isolinux/bios.img" \
-           "."
+            "/EFI/efiboot.img=isolinux/efiboot.img" \
+            "/boot/grub/grub.cfg=isolinux/grub.cfg" \
+            "/boot/grub/bios.img=isolinux/bios.img" \
+            "."
+
     judge "Create iso image"
 
     print_ok "Moving iso image to $SCRIPT_DIR/dist/$TARGET_BUSINESS_NAME-$TARGET_BUILD_VERSION-$LANG_MODE-$DATE.iso..."
