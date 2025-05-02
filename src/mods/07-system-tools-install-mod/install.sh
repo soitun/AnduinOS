@@ -80,7 +80,6 @@ apt install $INTERACTIVE \
     ibverbs-providers \
     xauth \
     busybox-initramfs \
-    dhcpcd-base \
     kmod \
     linux-base \
     cifs-utils \
