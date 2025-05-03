@@ -76,7 +76,30 @@ function upgrade_111_to_112() {
 
 function upgrade_112_to_113() {
     print_ok "Upgrading from 1.1.2 to 1.1.3..."
+    sudo apt update
+    sudo apt upgrade -y
     judge "Upgrade from 1.1.2 to 1.1.3 completed"
+}
+
+function upgrade_113_to_114() {
+    print_ok "Upgrading from 1.1.3 to 1.1.4..."
+    sudo rm /usr/lib/firefox/mozilla.cfg || true
+    sudo apt update
+    sudo apt install -y \
+      bpfcc-tools \
+      bpftrace \
+      exfatprogs \
+      gdb \
+      gir1.2-wnck-3.0 \
+      ieee-data \
+      iw --no-install-recommends
+    sudo apt -y install \
+      linux-headers-$(uname -r) \
+      linux-modules-$(uname -r) \
+      linux-tools-$(uname -r) \
+      linux-tools-common \
+      --no-install-recommends
+    judge "Upgrade from 1.1.3 to 1.1.4 completed"
 }
 
 function applyLsbRelease() {
