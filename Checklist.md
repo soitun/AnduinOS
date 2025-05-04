@@ -62,7 +62,6 @@ Test at least `en_US` and `zh_CN` locales.
 
 ## Helpfull commands
 
-
 To check the checksums of all .iso files and their corresponding .sha256 files:
 
 ```bash
