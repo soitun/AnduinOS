@@ -86,6 +86,8 @@ function upgrade_113_to_114() {
     sudo rm /usr/lib/firefox/mozilla.cfg || true
     sudo apt update
     sudo apt install -y \
+      orca \
+      spice-vdagent \
       bpfcc-tools \
       bpftrace \
       exfatprogs \
