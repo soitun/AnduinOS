@@ -14,6 +14,8 @@ AnduinOS is a custom Ubuntu-based Linux distribution that aims to facilitate dev
 
 ![Screenshot](./screenshot.png)
 
+<span class="paypal"><a href="https://www.paypal.com/paypalme/anduinxue2017" title="Donate to this project using Paypal"><img src="https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-100px.png" alt="PayPal donate button" /></a></span>
+
 ## How to build
 
 You MUST be using an `AMD64` architecture to build AnduinOS.
