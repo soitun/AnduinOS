@@ -64,10 +64,22 @@ function ensureCurrentOsAnduinOs() {
 function upgrade_130_to_131() {
     print_ok "Upgrading from 1.3.0 to 1.3.1..."
     sudo apt update
-    sudo apt upgrade -y \
-      gstreamer1.0-libav \
-      libpam-gnome-keyring \
-      --no-install-recommends
+    sudo apt install -y \
+        gstreamer1.0-libav \
+        gnome-browser-connector \
+        gnome-control-center-faces \
+        gnome-keyring-pkcs11 \
+        gvfs-backends \
+        orca \
+        wsdd \
+        libpam-gnome-keyring \
+        libpam-sss \
+        libpam-fprintd \
+        --no-install-recommends
+
+    fonts_config="https://gitlab.aiursoft.cn/anduin/anduinos/-/raw/1.4/src/mods/15-fonts-mod/local.conf?ref_type=heads"
+    sudo wget -O /etc/fonts/local.conf $fonts_config
+    fc-cache -f
     judge "Upgrade from 1.3.0 to 1.3.1 completed"
 }
 

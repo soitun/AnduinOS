@@ -35,6 +35,7 @@ apt-utils 3.0.0
 aptdaemon 2.0.2
 aptdaemon-data 2.0.2
 at-spi2-common 2.56.1-1
+at-spi2-core 2.56.1-1
 avahi-daemon 0.8-16ubuntu2
 baobab 48.0-1
 base-files 13.6ubuntu2
@@ -121,7 +122,7 @@ diffutils 1:3.10-3
 dirmngr 2.4.4-2ubuntu23
 discover 2.1.2-10.1
 discover-data 2.2013.01.13+nmu1
-distro-info-data 0.63
+distro-info-data 0.63ubuntu0.1
 dmeventd 2:1.02.201-1ubuntu1
 dmidecode 3.6-2
 dmsetup 2:1.02.201-1ubuntu1
@@ -151,8 +152,8 @@ file-roller 44.5-1
 finalrd 9build1
 findutils 4.10.0-3
 finger 0.17-17
-firefox 138.0+build1-0ubuntu0.25.04.1~mt2
-firefox-locale-en 138.0+build1-0ubuntu0.25.04.1~mt2
+firefox 138.0.1+build1-0ubuntu0.25.04.1~mt1
+firefox-locale-en 138.0.1+build1-0ubuntu0.25.04.1~mt1
 firmware-sof-signed 2025.01-1
 flatpak 1.16.0-2
 fontconfig 2.15.0-2.2ubuntu1
@@ -249,6 +250,7 @@ gir1.2-unity-7.0 7.1.4+19.04.20190319-6.1
 gir1.2-upowerglib-1.0 1.90.7-1build1
 gir1.2-vte-2.91 0.80.0-1
 gir1.2-webkit2-4.1 2.48.1-1ubuntu1
+gir1.2-wnck-3.0 43.2-1
 gir1.2-xdp-1.0 0.9.1-1
 gir1.2-xkl-1.0 5.4-5build2
 git 1:2.48.1-0ubuntu1
@@ -260,16 +262,19 @@ glib-networking-services 2.80.1-1
 gnome-bluetooth 42~3.34.5-13build3
 gnome-bluetooth-3-common 47.1-1
 gnome-bluetooth-sendto 47.1-1
+gnome-browser-connector 42.1-6
 gnome-characters 48.0-1
 gnome-chess 1:48.0-1
 gnome-clocks 48.0-1
 gnome-console 48.0.1-1
 gnome-control-center 1:48.0-1ubuntu3
 gnome-control-center-data 1:48.0-1ubuntu3
+gnome-control-center-faces 1:48.0-1ubuntu3
 gnome-desktop3-data 44.1-2
 gnome-disk-utility 46.1-1ubuntu1
 gnome-font-viewer 48.0-1
 gnome-keyring 48.0-1
+gnome-keyring-pkcs11 48.0-1
 gnome-logs 45.0-1build1
 gnome-maps 48.1-1
 gnome-menus 3.36.0-1.1ubuntu3
@@ -308,6 +313,7 @@ gnome-software-common 48.1-1
 gnome-software-plugin-deb 48.1-1
 gnome-software-plugin-flatpak 48.1-1
 gnome-sound-recorder 43~beta-2
+gnome-startup-applications 47.0.1-2ubuntu3
 gnome-sushi 46.0-2
 gnome-system-monitor 48.0-1
 gnome-text-editor 48.2-1
@@ -345,10 +351,10 @@ gstreamer1.0-plugins-base 1.26.0-1
 gstreamer1.0-plugins-base-apps 1.26.0-1
 gstreamer1.0-plugins-good 1.26.0-1ubuntu2
 gstreamer1.0-tools 1.26.0-3
-gstreamer1.0-vaapi 1.26.0-1
 gstreamer1.0-x 1.26.0-1
 gtk-update-icon-cache 4.18.4+ds-1
 gvfs 1.57.2-2ubuntu1
+gvfs-backends 1.57.2-2ubuntu1
 gvfs-common 1.57.2-2ubuntu1
 gvfs-daemons 1.57.2-2ubuntu1
 gvfs-fuse 1.57.2-2ubuntu1
@@ -409,6 +415,8 @@ libaccountsservice0 23.13.9-7ubuntu1
 libacl1 2.3.2-2
 libadwaita-1-0 1.7.0-1ubuntu1
 libaio1t64 0.3.113-8
+libao-common 1.2.2+20180113-1.2ubuntu1
+libao4 1.2.2+20180113-1.2ubuntu1
 libaom3 3.12.0-1
 libapparmor1 4.1.0~beta5-0ubuntu14
 libappstream5 1.0.4-1
@@ -461,6 +469,7 @@ libbluetooth3 5.79-2ubuntu1
 libbluray2 1:1.3.4-1build1
 libbpf1 1:1.5.0-2
 libbpfcc 0.30.0+ds-1ubuntu5
+libbrlapi0.8 6.7-1ubuntu3
 libbrotli1 1.1.0-2build4
 libbs2b0 3.1.0+dfsg-8
 libbsd0 0.12.2-2
@@ -488,6 +497,9 @@ libcap2 1:2.73-4ubuntu1
 libcap2-bin 1:2.73-4ubuntu1
 libcbor0.10 0.10.2-2ubuntu1
 libcc1-0 15-20250404-0ubuntu1
+libcdio-cdda2t64 10.2+2.0.2-1
+libcdio-paranoia2t64 10.2+2.0.2-1
+libcdio19t64 2.2.0-1
 libcdparanoia0 3.10.2+debian-14ubuntu1
 libchromaprint1 1.5.1-7
 libcjson1 1.7.18-3
@@ -536,6 +548,7 @@ libdisplay-info2 0.2.0-2
 libdjvulibre-text 3.5.28-2build4
 libdjvulibre21 3.5.28-2build4
 libdmapsharing-4.0-3t64 3.9.13-4
+libdotconf0 1.4.1-1
 libdpkg-perl 1.22.18ubuntu2
 libdrm-amdgpu1 2.4.124-2
 libdrm-common 2.4.124-2
@@ -614,6 +627,8 @@ libgcr-base-3-1 3.41.2-1build3
 libgcr-ui-3-1 3.41.2-1build3
 libgcrypt20 1.11.0-6ubuntu1
 libgd3 2.3.3-12ubuntu3
+libgdata-common 0.18.1-9
+libgdata22 0.18.1-9
 libgdbm-compat4t64 1.24-2
 libgdbm6t64 1.24-2
 libgdk-pixbuf-2.0-0 2.42.12+dfsg-2
@@ -789,6 +804,8 @@ libllvm18 1:18.1.8-17
 libllvm19 1:19.1.7-3ubuntu1
 liblmdb0 0.9.31-1build1
 liblocale-gettext-perl 1.07-7build1
+liblouis-data 3.32.0-1
+liblouis20 3.32.0-1
 liblsan0 15-20250404-0ubuntu1
 liblsof0 4.99.4+dfsg-2
 libltdl7 2.5.4-4
@@ -822,6 +839,7 @@ libmp3lame0 3.100-6build1
 libmpc3 1.3.1-1build2
 libmpfr6 4.2.2-1
 libmpg123-0t64 1.32.10-1
+libmsgraph-1-1 0.3.3-3
 libmtdev1t64 1.1.7-1
 libmtp-common 1.1.22-1
 libmtp9t64 1.1.22-1
@@ -840,6 +858,7 @@ libnetplan1 1.1.2-2ubuntu1
 libnettle8t64 3.10.1-1
 libnewt0.52 0.52.24-4ubuntu2
 libnfnetlink0 1.0.2-3
+libnfs14 5.0.2-1build1
 libnftables1 1.1.1-1build1
 libnftnl11 1.2.8-1
 libnghttp2-14 1.64.0-1ubuntu1
@@ -870,9 +889,13 @@ libostree-1-1 2025.1-1
 libp11-kit0 0.25.5-2ubuntu3
 libpackagekit-glib2-18 1.3.0-3build1
 libpam-cap 1:2.73-4ubuntu1
+libpam-fprintd 1.94.5-2
+libpam-gnome-keyring 48.0-1
 libpam-modules 1.5.3-7ubuntu4
 libpam-modules-bin 1.5.3-7ubuntu4
+libpam-pwquality 1.4.5-4
 libpam-runtime 1.5.3-7ubuntu4
+libpam-sss 2.10.1-2ubuntu4
 libpam-systemd 257.4-1ubuntu3
 libpam0g 1.5.3-7ubuntu4
 libpango-1.0-0 1.56.3-1
@@ -905,9 +928,9 @@ libpng16-16t64 1.6.47-1.1
 libpocketsphinx3 0.8.0+real5prealpha+1-15ubuntu5
 libpolkit-agent-1-0 126-2
 libpolkit-gobject-1-0 126-2
-libpoppler-cpp2 25.03.0-3
-libpoppler-glib8t64 25.03.0-3
-libpoppler147 25.03.0-3
+libpoppler-cpp2 25.03.0-3ubuntu1
+libpoppler-glib8t64 25.03.0-3ubuntu1
+libpoppler147 25.03.0-3ubuntu1
 libpopt0 1.19+dfsg-2
 libportal-gtk3-1 0.9.1-1
 libportal-gtk4-1 0.9.1-1
@@ -939,7 +962,7 @@ librabbitmq4 0.15.0-1
 libraqm0 0.10.2-1
 librav1e0.7 0.7.1-9
 libraw1394-11 2.1.2-2build3
-libraw23t64 0.21.3-1
+libraw23t64 0.21.3-1ubuntu0.25.04.1
 libreadline8t64 8.2-6
 libreiserfscore0t64 1:3.6.27-9
 librest-1.0-0 0.9.1-6build3
@@ -985,14 +1008,18 @@ libsnmp-base 5.9.4+dfsg-1.1ubuntu7
 libsnmp40t64 5.9.4+dfsg-1.1ubuntu7
 libsodium23 1.0.18-1build3
 libsord-0-0 0.16.18-1
+libsoup-2.4-1 2.74.3-10ubuntu0.2
 libsoup-3.0-0 3.6.5-1
 libsoup-3.0-common 3.6.5-1
+libsoup2.4-common 2.74.3-10ubuntu0.2
 libsource-highlight-common 3.1.9-4.3build1
 libsource-highlight4t64 3.1.9-4.3build1
 libsoxr0 0.1.3-4build3
 libspa-0.2-bluetooth 1.2.7-1ubuntu5
 libspa-0.2-modules 1.2.7-1ubuntu5
 libspectre1 0.2.12-1build2
+libspeechd-module0 0.12.0-2ubuntu2
+libspeechd2 0.12.0-2ubuntu2
 libspeex1 1.2.1-3
 libspeexdsp1 1.2.1-3
 libspelling-1-2 0.4.7-1
@@ -1078,7 +1105,6 @@ libuv1t64 1.50.0-2ubuntu1
 libv4l-0t64 1.28.1-1
 libv4lconvert0t64 1.28.1-1
 libva-drm2 2.22.0-3ubuntu2
-libva-wayland2 2.22.0-3ubuntu2
 libva-x11-2 2.22.0-3ubuntu2
 libva2 2.22.0-3ubuntu2
 libvdpau1 1.5-3
@@ -1111,6 +1137,8 @@ libwhoopsie-preferences0 23build3
 libwhoopsie0 0.2.79
 libwinpr3-3 3.14.0+dfsg-1ubuntu1
 libwireplumber-0.5-0 0.5.8-1
+libwnck-3-0 43.2-1
+libwnck-3-common 43.2-1
 libwoff1 1.0.2-2build1
 libwrap0 7.6.q-36
 libwww-perl 6.78-1
@@ -1161,6 +1189,7 @@ libxmuu1 2:1.1.3-3build2
 libxpm4 1:3.5.17-1build2
 libxrandr2 2:1.5.4-1
 libxrender1 1:0.9.10-1.1build1
+libxres1 2:1.2.1-1build1
 libxshmfence1 1.3-1build5
 libxslt1.1 1.1.39-0exp1ubuntu4
 libxt6t64 1:1.2.1-1.2build1
@@ -1250,6 +1279,7 @@ openssh-client 1:9.9p1-3ubuntu3.1
 openssl 3.4.1-1ubuntu3
 openssl-provider-legacy 3.4.1-1ubuntu3
 openvpn 2.6.13-1ubuntu3
+orca 48.0-1ubuntu1
 os-prober 1.83ubuntu2
 p11-kit 0.25.5-2ubuntu3
 p11-kit-modules 0.25.5-2ubuntu3
@@ -1280,7 +1310,7 @@ plymouth-theme-ubuntu-text 24.004.60-2ubuntu7
 pnp.ids 0.393-3
 polkitd 126-2
 poppler-data 0.4.12-1
-poppler-utils 25.03.0-3
+poppler-utils 25.03.0-3ubuntu1
 powermgmt-base 1.38
 ppp 2.5.2-1+1
 pptp-linux 1.10.0-2
@@ -1302,6 +1332,7 @@ python3-babel 2.17.0-1
 python3-bcrypt 4.2.0-2.1build1
 python3-blinker 1.9.0-1
 python3-bpfcc 0.30.0+ds-1ubuntu5
+python3-brlapi 6.7-1ubuntu3
 python3-cairo 1.27.0-2
 python3-certifi 2025.1.31+ds-1
 python3-cffi-backend 1.17.1-2build2
@@ -1335,6 +1366,7 @@ python3-jwt 2.10.1-2
 python3-launchpadlib 2.1.0-1
 python3-lazr.restfulclient 0.14.6-2
 python3-lazr.uri 1.0.6-6
+python3-louis 3.32.0-1
 python3-mako 1.3.8-2
 python3-markdown-it 3.0.0-2
 python3-markupsafe 2.1.5-1build4
@@ -1361,6 +1393,7 @@ python3-rpds-py 0.21.0-2ubuntu2
 python3-serial 3.5-2
 python3-setuptools-whl 75.8.0-1
 python3-software-properties 0.111
+python3-speechd 0.12.0-2ubuntu2
 python3-systemd 235-1build6
 python3-typeguard 4.4.2-1
 python3-typing-extensions 4.12.2-2
@@ -1403,6 +1436,8 @@ shotwell-common 0.32.10-1ubuntu2
 smartmontools 7.4-3
 software-properties-common 0.111
 sound-theme-freedesktop 0.8-3ubuntu1
+speech-dispatcher 0.12.0-2ubuntu2
+speech-dispatcher-audio-plugins 0.12.0-2ubuntu2
 spice-vdagent 0.22.1-4.1
 squashfs-tools 1:4.6.1-1build1
 ssl-cert 1.1.3ubuntu1
@@ -1474,6 +1509,7 @@ whoopsie-preferences 23build3
 wireless-regdb 2024.10.07-0ubuntu2
 wireplumber 0.5.8-1
 wpasupplicant 2:2.10-24
+wsdd 2:0.8-2ubuntu3
 x11-common 1:7.7+23ubuntu4
 x11-utils 7.7+7
 x11-xkb-utils 7.7+9
