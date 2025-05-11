@@ -46,6 +46,9 @@ apt install $INTERACTIVE \
     exfatprogs \
     iw \
     xxd \
+    libfuse2t64 \
+    libfuse3-3 \
+    libopengl0 \
     xdg-utils \
     zenity \
     --no-install-recommends
@@ -115,6 +118,12 @@ apt install $INTERACTIVE \
     $DEFAULT_APPS \
     --no-install-recommends
 judge "Install gnome additional applications"
+
+# print_ok "Installing Chromium browser..."
+# add-apt-repository -y ppa:saiarcot895/chromium-beta
+# apt-get install $INTERACTIVE \
+#     chromium-browser
+# judge "Install chromium browser"
 
 print_ok "Installing default cli applications..."
 apt install $INTERACTIVE \
@@ -186,3 +195,5 @@ judge "Remove the default vim.desktop file"
 print_ok "Installing $LANGUAGE_PACKS language packs"
 apt install $INTERACTIVE $LANGUAGE_PACKS --no-install-recommends
 judge "Install language packs"
+
+apt install -y gparted

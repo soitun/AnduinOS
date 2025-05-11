@@ -46,3 +46,6 @@ else
     print_error "Please check the config file"
     exit 1
 fi
+
+flatpak install -y flathub org.chromium.Chromium
+

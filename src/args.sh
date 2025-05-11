@@ -16,7 +16,7 @@ export INTERACTIVE="-y"
 #==========================
 
 # Set the language environment. Can be: en_US, en_GB, zh_CN, zh_TW, zh_HK, ja_JP, ko_KR, vi_VN, th_TH, de_DE, fr_FR, es_ES, ru_RU, it_IT, pt_BR, pt_PT, ar_SA, nl_NL, sv_SE, pl_PL, tr_TR
-export LANG_MODE="en_US"
+export LANG_MODE="en_GB"
 # Set the language pack code. Can be: zh, en, ja, ko, vi, th, de, fr, es, ru, it, pt, pt, ar, nl, sv, pl, tr
 export LANG_PACK_CODE="en"
 
@@ -46,19 +46,19 @@ echo "Language environment has been set to $LANG_MODE"
 # OS system information
 #==========================
 # Can be: jammy noble oracular plucky questing
-export TARGET_UBUNTU_VERSION="questing"
+export TARGET_UBUNTU_VERSION="noble"
 
 # See https://docs.anduinos.com/Install/Select-Best-Apt-Source.html
 export BUILD_UBUNTU_MIRROR="http://mirror.aiursoft.cn/ubuntu/"
 
 # Must be lowercase without special characters and spaces
-export TARGET_NAME="anduinos"
+export TARGET_NAME="anduinos-modified-clive-mccabe"
 
 # Business name. No special characters or spaces
-export TARGET_BUSINESS_NAME="AnduinOS"
+export TARGET_BUSINESS_NAME="AnduinOS-For-Clive"
 
 # Version number. Must be in the format of x.y.z
-export TARGET_BUILD_VERSION="1.4.0"
+export TARGET_BUILD_VERSION="1.1.5"
 
 # Fork version. Must be in the format of x.y
 export TARGET_BUILD_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -108,7 +108,7 @@ fi
 # flatpak:  install firefox from flathub (Only available if STORE_PROVIDER is set to "flatpak")
 # snap:     install firefox from snap (Only available if STORE_PROVIDER is set to "snap")
 # TODO: Snap firefox seems to be broken. Investigation required.
-export FIREFOX_PROVIDER="deb"
+export FIREFOX_PROVIDER="none"
 if [[ "$FIREFOX_PROVIDER" == "flatpak" && "$STORE_PROVIDER" != "flatpak" ]]; then
     echo "Error: FIREFOX_PROVIDER is set to flatpak, but STORE_PROVIDER is not set to flatpak"
     exit 1
@@ -122,16 +122,8 @@ fi
 # Must set FIREFOX_PROVIDER to "deb" before using this option
 # Sample: mirror-ppa.aiursoft.cn
 export FIREFOX_MIRROR="mirror-ppa.aiursoft.cn"
-if [[ "$FIREFOX_MIRROR" != "" && "$FIREFOX_PROVIDER" != "deb" ]]; then
-    echo "Error: FIREFOX_MIRROR is set, but FIREFOX_PROVIDER is not set to deb"
-    exit 1
-fi
 
 export FIREFOX_LOCALE_PACKAGE="firefox-locale-$LANG_PACK_CODE*"
-if [[ "$FIREFOX_LOCALE_PACKAGE" != "" && "$FIREFOX_PROVIDER" != "deb" ]]; then
-    echo "Error: FIREFOX_LOCALE_PACKAGE is set, but FIREFOX_PROVIDER is not set to deb"
-    exit 1
-fi
 
 #============================
 # Input method configuration
@@ -160,7 +152,7 @@ fi
 # * [('xkb', 'us'), ('ibus', 'rime')]
 # * [('xkb', 'us'), ('ibus', 'chewing')]
 # * [('xkb', 'us'), ('xkb', 'fr')]
-export CONFIG_INPUT_METHOD="[('xkb', 'us')]"
+export CONFIG_INPUT_METHOD="[('xkb', 'gb')]"
 
 #============================
 # Time zone configuration
@@ -168,23 +160,25 @@ export CONFIG_INPUT_METHOD="[('xkb', 'us')]"
 
 # The timezone for the new OS being built (In chroot environment)
 # To view available options, run: `ls /usr/share/zoneinfo/`
-export TIMEZONE="America/Los_Angeles"
+export TIMEZONE="Europe/London"
 
 #============================
 # Weather plugin configuration
 #============================
-export CONFIG_WEATHER_LOCATION="[(uint32 0, 'San Francisco, California, United States', uint32 0, '37.7749295,-122.4194155')]"
+export CONFIG_WEATHER_LOCATION="[(uint32 0, 'London, United Kingdom', uint32 0, '51.507351,-0.127758')]"
 
 #============================
 # Live system configuration
 #============================
-export LIVE_UBUNTU_MIRROR="http://archive.ubuntu.com/ubuntu/"
+export LIVE_UBUNTU_MIRROR="https://mirror.cov.ukservers.com/ubuntu/"
 
 #============================
 # System apps configuration
 #============================
 # The default apps to be installed.
 export DEFAULT_APPS="
+    vlc \
+    aisleriot \
     gnome-chess \
     gnome-clocks \
     gnome-weather \

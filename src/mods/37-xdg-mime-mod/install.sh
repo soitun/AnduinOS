@@ -2,11 +2,19 @@ set -e                  # exit on error
 set -o pipefail         # exit on pipeline error
 set -u                  # treat unset variable as error
 
-# Web with Mozila Firefox
-xdg-mime default firefox.desktop x-scheme-handler/http
-xdg-mime default firefox.desktop text/html
-xdg-mime default firefox.desktop application/xhtml+xml
-xdg-mime default firefox.desktop x-scheme-handler/https
+# # Web with Mozila Firefox
+# xdg-mime default firefox.desktop x-scheme-handler/http
+# xdg-mime default firefox.desktop text/html
+# xdg-mime default firefox.desktop application/xhtml+xml
+# xdg-mime default firefox.desktop x-scheme-handler/https
+
+# # Web with Chromium
+xdg-mime default chromium-browser.desktop x-scheme-handler/http
+xdg-mime default chromium-browser.desktop text/html
+xdg-mime default chromium-browser.desktop application/xhtml+xml
+xdg-mime default chromium-browser.desktop x-scheme-handler/https
+
+
 # images with shotwell
 xdg-mime default org.gnome.Shotwell-Viewer.desktop image/jpeg # jpeg
 xdg-mime default org.gnome.Shotwell-Viewer.desktop image/jpg
