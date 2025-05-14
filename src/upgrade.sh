@@ -109,8 +109,14 @@ function upgrade_114_to_115() {
     sudo apt update
     sudo apt upgrade -y
     sudo apt install -y \
+      vim \
+      power-profiles-daemon \
+      libfuse2t64 \
+      libfuse3-3 \
+      libopengl0 \
       gstreamer1.0-libav \
       --no-install-recommends
+
     judge "Upgrade from 1.1.4 to 1.1.5 completed"
 }
 
