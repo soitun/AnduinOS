@@ -25,6 +25,7 @@ declare -A taskbar_add_strings=(
     ["sv"]="Lägg till i aktivitetsfältet"
     ["pl"]="Dodaj do paska zadań"
     ["tr"]="Görev çubuğuna ekle"
+    ["ro"]="Adăugați în bara de activități"
 )
 
 declare -A taskbar_remove_strings=(
@@ -48,6 +49,7 @@ declare -A taskbar_remove_strings=(
     ["sv"]="Ta bort från aktivitetsfältet"
     ["pl"]="Usuń z paska zadań"
     ["tr"]="Görev çubuğundan kaldır"
+    ["ro"]="Anulați fixarea din bara de activități"
 )
 
 # Special case for English - create new .mo file
