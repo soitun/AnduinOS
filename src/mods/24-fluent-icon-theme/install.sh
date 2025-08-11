@@ -8,11 +8,6 @@ wget https://git.aiursoft.cn/PublicVault/Fluent-icon-theme/archive/master.zip -O
 unzip -q -O UTF-8 ./themes/fluent-icon-theme.zip -d ./themes/
 judge "Download Fluent icon theme"
 
-print_ok "Patching Fluent icon theme"
-cp ./patched_install.sh ./themes/fluent-icon-theme/install.sh
-chmod +x ./themes/fluent-icon-theme/install.sh
-judge "Patch Fluent icon theme"
-
 print_ok "Installing Fluent icon theme"
 (
     print_ok "Installing Fluent icon theme" && \
