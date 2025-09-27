@@ -163,8 +163,13 @@ judge "Install ibus"
 
 print_ok "Installing gnome fonts..."
 apt install $INTERACTIVE \
-    fonts-noto-cjk fonts-noto-core fonts-noto-mono fonts-noto-color-emoji printer-driver-all --no-install-recommends
+    fonts-noto-cjk fonts-noto-core fonts-noto-mono fonts-noto-color-emoji --no-install-recommends
 judge "Install gnome fonts"
+
+print_ok "Installing gnome printer support..."
+apt install $INTERACTIVE \
+    printer-driver-all # With recommends this time. Because only this way it installs the actual drivers
+judge "Install printer-driver-all"
 
 print_ok "Installing gnome printer support..."
 apt install $INTERACTIVE \
