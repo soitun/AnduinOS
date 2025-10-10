@@ -86,8 +86,6 @@ apt install $INTERACTIVE \
     espeak-ng-data \
     --no-install-recommends
 
-install_opt ubuntu-session-xsession
-
 print_ok "Installing plymouth..."
 apt install $INTERACTIVE \
     plymouth \

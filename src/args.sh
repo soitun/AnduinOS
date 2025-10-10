@@ -133,11 +133,12 @@ fi
 
 # How to install Firefox. Can be: "none", "deb", "flatpak", "snap"
 # none:     no firefox
-# deb:      install firefox from PPA with apt
+# deb:      install firefox from Canonical PPA with apt
 # flatpak:  install firefox from flathub (Only available if STORE_PROVIDER is set to "flatpak")
 # snap:     install firefox from snap (Only available if STORE_PROVIDER is set to "snap")
+# official_apt: install firefox from the official Firefox apt source
 # TODO: Snap firefox seems to be broken. Investigation required.
-export FIREFOX_PROVIDER="none"
+export FIREFOX_PROVIDER="official_apt"
 if [[ "$FIREFOX_PROVIDER" == "flatpak" && "$STORE_PROVIDER" != "flatpak" ]]; then
     echo "Error: FIREFOX_PROVIDER is set to flatpak, but STORE_PROVIDER is not set to flatpak"
     exit 1
@@ -270,9 +271,10 @@ export DEFAULT_APPS="
     gnome-font-viewer \
     gnome-browser-connector \
     gnome-control-center-faces \
-    gnome-startup-applications \
     policykit-desktop-privileges
 "
+
+#gnome-startup-applications \
 
 # The default CLI tools to be installed.
 # All those tools are optional. You can remove any of them if you don't need them.

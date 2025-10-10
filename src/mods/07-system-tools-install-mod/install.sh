@@ -64,6 +64,7 @@ apt install $INTERACTIVE \
     rsync \
     strace \
     sudo \
+    sudo-rs \
     tcpdump \
     telnet \
     time \
