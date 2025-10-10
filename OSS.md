@@ -25,6 +25,10 @@ __Please note__: AnduinOS team is **Sponsoring** `vinceliuice` for his great wor
 * [alsa-ucm-conf](https://github.com/alsa-project/alsa-ucm-conf)
 * [Clipboard-indicator](https://github.com/Tudmotu/gnome-shell-extension-clipboard-indicator)
 * [sof-bin](https://github.com/thesofproject/sof-bin)
+* [Accent-gtk-theme](https://github.com/florintanasa/accent-gtk-theme)
+* [Accent-user-theme](https://github.com/florintanasa/accent-user-theme)
+* [Accent-icons-theme](https://github.com/florintanasa/accent-icons-theme)
+
 
 ```
 accountsservice 23.13.9-7ubuntu1
