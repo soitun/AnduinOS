@@ -125,9 +125,9 @@ xdg-mime default org.gnome.Rhythmbox3.desktop audio/x-mod
 xdg-mime default org.gnome.Rhythmbox3.desktop audio/x-s3m
 xdg-mime default org.gnome.Rhythmbox3.desktop audio/x-stm
 xdg-mime default org.gnome.Rhythmbox3.desktop audio/x-xm
-# books with evince
-xdg-mime default org.gnome.Evince.desktop application/pdf
-xdg-mime default org.gnome.Evince.desktop application/epub+zip
+# books with papers
+xdg-mime default org.gnome.Papers.desktop application/pdf
+xdg-mime default org.gnome.Papers.desktop application/epub+zip
 # zip with file-roller
 xdg-mime default org.gnome.FileRoller.desktop application/zip
 xdg-mime default org.gnome.FileRoller.desktop application/x-7z-compressed

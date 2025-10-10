@@ -244,7 +244,7 @@ export DEFAULT_APPS="
     gnome-nettool \
     gnome-text-editor \
     seahorse \
-    evince \
+    papers \
     shotwell \
     remmina remmina-plugin-rdp \
     rhythmbox rhythmbox-plugins \
