@@ -61,12 +61,6 @@ apt install $INTERACTIVE \
     gnome-menus \
     gnome-shell-extensions \
     spice-vdagent \
-    xserver-xorg-input-all \
-    xserver-xorg \
-    xserver-xorg-legacy \
-    xserver-xorg-video-intel \
-    xserver-xorg-video-qxl \
-    xserver-xorg-video-all \
     gdm3 \
     libpam-gnome-keyring \
     gnome-keyring \
