@@ -187,12 +187,6 @@ apt install $INTERACTIVE \
     --no-install-recommends
 judge "Install python3"
 
-print_ok "Installing gnome software..."
-apt install $INTERACTIVE \
-    xorg \
-    --no-install-recommends
-judge "Install gnome software"
-
 print_ok "Remove the default htop.desktop file"
 rm /usr/share/applications/htop.desktop || true
 judge "Remove the default htop.desktop file"
