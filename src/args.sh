@@ -138,7 +138,7 @@ fi
 # snap:     install firefox from snap (Only available if STORE_PROVIDER is set to "snap")
 # official_apt: install firefox from the official Firefox apt source
 # TODO: Snap firefox seems to be broken. Investigation required.
-export FIREFOX_PROVIDER="official_apt"
+export FIREFOX_PROVIDER="deb"
 if [[ "$FIREFOX_PROVIDER" == "flatpak" && "$STORE_PROVIDER" != "flatpak" ]]; then
     echo "Error: FIREFOX_PROVIDER is set to flatpak, but STORE_PROVIDER is not set to flatpak"
     exit 1
