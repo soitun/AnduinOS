@@ -179,3 +179,43 @@ if [[ $DEFAULT_APPS =~ "qalculate" ]]; then
     print_ok "Done. All locales patched in $DESKTOP_FILE."
 
 fi
+
+if [[ $DEFAULT_APPS =~ "papers" ]]; then
+    print_ok "Patching Document Viewer (papers) localization..."
+    DESKTOP_FILE="/usr/share/applications/org.gnome.Papers.desktop"
+
+    # 定义一个包含所有翻译的关联数组
+    declare -A LOCALIZED_NAMES=(
+        [zh_CN]="文档查看器"
+        [zh_TW]="文件檢視器"
+        [zh_HK]="文件檢視器"
+        [ja_JP]="ドキュメントビューアー"
+        [ko_KR]="문서 뷰어"
+        [vi_VN]="Trình xem tài liệu"
+        [th_TH]="โปรแกรมดูเอกสาร"
+        [de_DE]="Dokumentenbetrachter"
+        [fr_FR]="Visionneur de documents"
+        [es_ES]="Visor de documentos"
+        [ru_RU]="Просмотрщик документов"
+        [it_IT]="Visualizzatore di documenti"
+        [pt_PT]="Visualizador de documentos"
+        [pt_BR]="Visualizador de documentos"
+        [ar_SA]="عارض المستندات"
+        [nl_NL]="Documentviewer"
+        [sv_SE]="Dokumentvisare"
+        [pl_PL]="Przeglądarka dokumentów"
+        [tr_TR]="Belge Görüntüleyici"
+        [ro_RO]="Vizualizator de documente"
+    )
+
+    # 循环遍历数组，为每种语言添加翻译
+    for locale in "${!LOCALIZED_NAMES[@]}"; do
+        name="${LOCALIZED_NAMES[$locale]}"
+        # 先删除可能存在的旧条目，防止重复
+        sed -i "/^Name\[$locale\]=/d" "$DESKTOP_FILE"
+        # 在 `Name=` 这一行之后插入新的翻译
+        sed -i "/^Name=/a Name[$locale]=${name}" "$DESKTOP_FILE"
+    done
+
+    judge "Patch Document Viewer (papers) localization"
+fi
