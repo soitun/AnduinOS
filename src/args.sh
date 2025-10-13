@@ -166,7 +166,6 @@ if [[ "$FIREFOX_PROVIDER" == "deb" && -z "$LIVE_FIREFOX_MIRROR" ]]; then
     exit 1
 fi
 
-# export FIREFOX_LOCALE_PACKAGE="firefox-locale-$LANG_PACK_CODE*"
 export FIREFOX_LOCALE_PACKAGE="firefox-esr-locale-$LANG_PACK_CODE*"
 if [[ "$FIREFOX_LOCALE_PACKAGE" != "" && "$FIREFOX_PROVIDER" != "deb" ]]; then
     echo "Error: FIREFOX_LOCALE_PACKAGE is set, but FIREFOX_PROVIDER is not set to deb"
@@ -273,8 +272,6 @@ export DEFAULT_APPS="
     gnome-control-center-faces \
     policykit-desktop-privileges
 "
-
-#gnome-startup-applications \
 
 # The default CLI tools to be installed.
 # All those tools are optional. You can remove any of them if you don't need them.
