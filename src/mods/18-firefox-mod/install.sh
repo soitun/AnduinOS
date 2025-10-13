@@ -31,7 +31,7 @@ EOF
     judge "Update package list"
 
     print_ok "Installing Firefox and locale package $FIREFOX_LOCALE_PACKAGE from PPA: $BUILD_FIREFOX_MIRROR"
-    apt install $INTERACTIVE firefox $FIREFOX_LOCALE_PACKAGE --no-install-recommends
+    apt install $INTERACTIVE firefox-esr $FIREFOX_LOCALE_PACKAGE --no-install-recommends
     judge "Install Firefox"
 
     # If both Build mirror and Live mirror are set, replace Build mirror with Live mirror
