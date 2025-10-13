@@ -295,7 +295,8 @@ export DEFAULT_CLI_TOOLS="
     smartmontools \
     traceroute \
     whois \
-    nmap
+    nmap \
+    fastfetch
     "
 
 # The default Flatpak tools to be installed.
