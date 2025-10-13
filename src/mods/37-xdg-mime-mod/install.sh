@@ -2,6 +2,8 @@ set -e                  # exit on error
 set -o pipefail         # exit on pipeline error
 set -u                  # treat unset variable as error
 
+# Calendar with Gnome Calendar
+xdg-mime default org.gnome.Calendar.desktop text/calendar
 # Web with Mozila Firefox
 xdg-mime default firefox-esr.desktop x-scheme-handler/http
 xdg-mime default firefox-esr.desktop text/html
