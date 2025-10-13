@@ -151,7 +151,7 @@ fi
 # Whether to install firefox with apt. If set, it will be installed from the PPA. If empty, it will be installed from the default source
 # Must set FIREFOX_PROVIDER to "deb" before using this option
 # Sample: mirror-ppa.aiursoft.cn
-export BUILD_FIREFOX_MIRROR=""
+export BUILD_FIREFOX_MIRROR="mirror-ppa.aiursoft.cn"
 if [[ "$BUILD_FIREFOX_MIRROR" != "" && "$FIREFOX_PROVIDER" != "deb" ]]; then
     echo "Error: BUILD_FIREFOX_MIRROR is set, but FIREFOX_PROVIDER is not set to deb"
     exit 1
