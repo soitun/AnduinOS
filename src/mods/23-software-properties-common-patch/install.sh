@@ -7,6 +7,11 @@ sudo sed -i.bak "/self.distro = get_distro()/a \        self.distro.id = 'ubuntu
 judge "Patch /usr/bin/add-apt-repository"
 #software-properties-common
 
+print_ok "Linking ubuntu templates and distro info for python-apt..."
+sudo ln /usr/share/python-apt/templates/ubuntu.info /usr/share/python-apt/templates/anduinos.info
+sudo ln /usr/share/distro-info/ubuntu.csv /usr/share/distro-info/anduinos.csv
+judge "Link ubuntu templates and distro info for python-apt"
+
 print_ok "Marking software-properties-common as held..."
 apt-mark hold software-properties-common
 judge "Mark software-properties-common as held"
