@@ -221,7 +221,7 @@ export TIMEZONE="America/Los_Angeles"
 #============================
 
 # This will affect the default weather location in the weather plugin.
-export CONFIG_WEATHER_LOCATION="[(uint32 0, 'San Francisco, California, United States', uint32 0, '37.7749295,-122.4194155')]"
+export CONFIG_WEATHER_LOCATION="['{\"name\":\"San Francisco, California, United States\",\"lat\":37.7749295,\"lon\":-122.4194155}']"
 
 #============================
 # Live system configuration
