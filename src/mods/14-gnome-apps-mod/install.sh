@@ -142,10 +142,10 @@ apt install $INTERACTIVE \
     gstreamer1.0-plugins-base-apps --no-install-recommends
 judge "Install gstreamer"
 
-print_ok "Installing gnome console..."
+print_ok "Installing ptyxis..."
 apt install $INTERACTIVE \
-    gnome-console  --no-install-recommends
-judge "Install gnome console"
+    ptyxis  --no-install-recommends
+judge "Install ptyxis"
 
 print_ok "Installing ibus..."
 apt install $INTERACTIVE \
