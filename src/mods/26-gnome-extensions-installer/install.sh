@@ -61,7 +61,7 @@ extensions=(
     "customize-ibus@hollowman.ml"
     "dash-to-panel@jderose9.github.com"
     "network-stats@gnome.noroadsleft.xyz"
-    "openweather-extension@penguin-teal.github.io"
+    "simple-weather@romanlefler.com"
     "lockkeys@vaina.lt"
     "tiling-assistant@leleat-on-github"
     "mediacontrols@cliffniff.github.com"

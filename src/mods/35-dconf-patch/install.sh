@@ -60,7 +60,7 @@ if [ -z "$CONFIG_WEATHER_LOCATION" ]; then
 fi
 
 print_ok "Configuring weather location from CONFIG_WEATHER_LOCATION"
-dconf write /org/gnome/shell/extensions/openweatherrefined/locs "$CONFIG_WEATHER_LOCATION"
+dconf write /org/gnome/shell/extensions/simple-weather/locations "$CONFIG_WEATHER_LOCATION"
 judge "Configure weather location"
 
 print_ok "Copying root's dconf settings to /etc/skel"

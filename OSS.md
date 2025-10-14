@@ -18,7 +18,7 @@ __Please note__: AnduinOS team is **Sponsoring** `vinceliuice` for his great wor
 * [Customize ibus](https://github.com/openSUSE/Customize-IBus)
 * [Dash to panel](https://github.com/home-sweet-gnome/dash-to-panel)
 * [Network Dtats](https://github.com/noroadsleft000/gnome-network-stats)
-* [Open weather](https://gitlab.com/skrewball/openweather)
+* [SimpleWeather](https://github.com/romanlefler/SimpleWeather)
 * [Lockkeys](https://github.com/kazysmaster/gnome-shell-extension-lockkeys)
 * [Tiling-assistant](https://github.com/Leleat/Tiling-Assistant)
 * [Mediacontrols](https://github.com/sakithb/media-controls)
@@ -28,7 +28,6 @@ __Please note__: AnduinOS team is **Sponsoring** `vinceliuice` for his great wor
 * [Accent-gtk-theme](https://github.com/florintanasa/accent-gtk-theme)
 * [Accent-user-theme](https://github.com/florintanasa/accent-user-theme)
 * [Accent-icons-theme](https://github.com/florintanasa/accent-icons-theme)
-
 
 ```
 accountsservice 23.13.9-7ubuntu1
