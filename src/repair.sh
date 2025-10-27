@@ -173,25 +173,31 @@ cut -d' ' -f1 "$MANIFEST_FILE" \
 if [ ! -s "$PKG_TEMP_FILE" ]; then
     print_ok "No missing packages to install."
 else
-    print_warn "Fast mode failed. Retrying one by one (robust mode)..."
-    print_ok "This may take 5-30 minutes. Only errors will be displayed."
+    if xargs sudo apt install --no-install-recommends -y < "$PKG_TEMP_FILE" > /tmp/anduinos-fast-install.log 2>&1; then
+        print_ok "Fast mode installation successful."
+        rm -f /tmp/anduinos-fast-install.log
     
-    PKG_INSTALL_LOG="/tmp/anduinos-pkg-install.log"
+    else
+        print_warn "Fast mode failed. Retrying one by one (robust mode)..."
+        print_ok "This may take 5-30 minutes. Only errors will be displayed."
+        
+        PKG_INSTALL_LOG="/tmp/anduinos-pkg-install.log"
 
-    while read -r pkg; do
-        if [ -n "$pkg" ]; then
-            if sudo apt install --no-install-recommends -y "$pkg" > "$PKG_INSTALL_LOG" 2>&1; then
-                : # Bash的 "no-op" (空操作)
-            else
-                print_warn "Failed to install package: '$pkg'. Details:"
-                cat "$PKG_INSTALL_LOG"
-                echo -e "${Red}-----------------------------------------------------${Font}"
+        while read -r pkg; do
+            if [ -n "$pkg" ]; then
+                if sudo apt install --no-install-recommends -y "$pkg" > "$PKG_INSTALL_LOG" 2>&1; then
+                    : # Bash的 "no-op" (空操作)
+                else
+                    print_warn "Failed to install package: '$pkg'. Details:"
+                    cat "$PKG_INSTALL_LOG"
+                    echo -e "${Red}-----------------------------------------------------${Font}"
+                fi
             fi
-        fi
-    done < "$PKG_TEMP_FILE"
-    
-    rm -f "$PKG_INSTALL_LOG"
-    print_ok "Robust missing package install mode finished."
+        done < "$PKG_TEMP_FILE"
+        
+        rm -f "$PKG_INSTALL_LOG"
+        print_ok "Robust missing package install mode finished."
+    fi
 fi
 judge "Install missing packages"
 
