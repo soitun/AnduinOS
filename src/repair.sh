@@ -234,6 +234,16 @@ sudo rsync -Aax --update --delete /mnt/anduinos_squashfs/usr/share/icons/ /usr/s
 sudo rsync -Aax --update --delete /mnt/anduinos_squashfs/usr/share/themes/ /usr/share/themes/
 judge "Upgrade icon and theme files"
 
+# Intel SOF Mod installation
+print_ok "Installing Intel SOF Mod..."
+#/usr/local/bin/sof-*
+#/lib/firmware/intel/sof*
+#/usr/share/alsa/ucm2/
+sudo rsync -Aax --update /mnt/anduinos_squashfs/lib/firmware/intel/sof* /lib/firmware/intel/
+sudo rsync -Aax --update /mnt/anduinos_squashfs/usr/local/bin/sof-* /usr/local/bin/
+sudo rsync -Aax --update /mnt/anduinos_squashfs/usr/share/alsa/ucm2/ /usr/share/alsa/ucm2/
+judge "Install Intel SOF Mod"
+
 print_ok "Upgrading desktop backgrounds..."
 sudo rsync -Aax --update /mnt/anduinos_squashfs/usr/share/backgrounds/ /usr/share/backgrounds/
 sudo rsync -Aax --update /mnt/anduinos_squashfs/usr/share/gnome-background-properties/ /usr/share/gnome-background-properties/
