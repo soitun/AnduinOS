@@ -151,7 +151,7 @@ sudo rm /etc/apt/preferences.d/* >/dev/null 2>&1 || true
 judge "Reset APT configuration files"
 
 print_ok "Updating package mirrors..."
-curl -s https://gitlab.aiursoft.cn/anduin/init-server/-/raw/master/mirror.sh?ref_type=heads | bash
+curl -s https://gitlab.aiursoft.com/anduin/init-server/-/raw/master/mirror.sh?ref_type=heads | bash
 sudo apt update
 judge "Update package mirrors"
 
@@ -303,7 +303,7 @@ sudo rsync -Aax /mnt/anduinos_squashfs/usr/share/plymouth/ubuntu-logo.png /usr/s
 judge "Update system version information"
 
 print_ok "Applying dconf settings patch..."
-PATCH_URL="https://gitlab.aiursoft.cn/anduin/anduinos/-/raw/1.4/src/mods/35-dconf-patch/dconf.ini?ref_type=heads"
+PATCH_URL="https://gitlab.aiursoft.com/anduin/anduinos/-/raw/1.4/src/mods/35-dconf-patch/dconf.ini?ref_type=heads"
 curl -sL "$PATCH_URL" | dconf load /org/gnome/
 judge "Apply dconf settings patch"
 
