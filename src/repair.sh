@@ -1,9 +1,29 @@
 #!/bin/bash
+
+#=================================================
+#           PLEASE READ THIS BEFORE CONTINUING
+#=================================================
+# This file is used to repair AnduinOS by mounting
+# the ISO and replacing system files. It is intended
+# for use when the system is broken or corrupted.
+#
+# This file is ONLY compatible with AnduinOS installed
+# on a system, not live session.
+#
+# Do NOT run this script as root. Run it as a normal
+# user with sudo privileges.
+#
+# Example:
+#    bash ./REPAIR.sh
+#=================================================
+
 set -e
 set -o pipefail
 set -u
 
 PKG_TEMP_FILE=$(mktemp)
+export SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+export SQUASH_FILE="$SCRIPT_DIR/casper/filesystem.squashfs"
 trap 'rm -f "$PKG_TEMP_FILE"' EXIT
 
 Green="\033[32m"
@@ -42,10 +62,9 @@ function judge() {
 function clean_up() {
   print_ok "Cleaning up old files..."
   sudo umount /mnt/anduinos_squashfs >/dev/null 2>&1 || true
-  sudo umount /mnt/anduinos_iso >/dev/null 2>&1 || true
   sudo rm -rf /mnt/anduinos_squashfs >/dev/null 2>&1 || true
-  sudo rm -rf /mnt/anduinos_iso >/dev/null 2>&1 || true
-  sudo rm /tmp/AnduinOS-1.4.0* >/dev/null 2>&1 || true
+  #sudo umount /mnt/anduinos_iso >/dev/null 2>&1 || true
+  #sudo rm -rf /mnt/anduinos_iso >/dev/null 2>&1 || true
   judge "Cleanup"
 }
 
@@ -78,73 +97,25 @@ if [[ "$(id -u)" -eq 0 ]]; then
     exit 1
 fi
 
-print_ok "Installing required packages (aria2, curl, lsb-release)..."
-sudo apt install -y aria2 curl lsb-release
-judge "Install required packages"
-
-CURRENT_LANG=${LANG%%.*}
-DOWNLOAD_URL="https://download.anduinos.com/1.4/1.4.0/AnduinOS-1.4.0-${CURRENT_LANG}.torrent"
-HASH_URL="https://download.anduinos.com/1.4/1.4.0/AnduinOS-1.4.0-${CURRENT_LANG}.sha256"
-
-print_ok "Current system language detected: ${CURRENT_LANG}"
-print_ok "Attempting to download with URL: ${DOWNLOAD_URL}"
-
-if ! curl --head --silent --fail "$DOWNLOAD_URL" >/dev/null; then
-    print_warn "Language pack for ${CURRENT_LANG} not found, falling back to en_US"
-    DOWNLOAD_URL="https://download.anduinos.com/1.4/1.4.0/AnduinOS-1.4.0-en_US.torrent"
-    HASH_URL="https://download.anduinos.com/1.4/1.4.0/AnduinOS-1.4.0-en_US.sha256"
-fi
-
-if ! curl --head --silent --fail "$DOWNLOAD_URL" >/dev/null; then
-    print_error "Download URL is not reachable. Please check your network connection."
-    exit 1
-fi
-
-print_ok "Downloading AnduinOS 1.4.0 torrent, please wait..."
-curl -o /tmp/AnduinOS-1.4.0.torrent "$DOWNLOAD_URL"
-curl -o /tmp/AnduinOS-1.4.0.sha256 "$HASH_URL"
-judge "Download AnduinOS 1.4.0 torrent"
-
-print_ok "Starting download via aria2..."
-aria2c --allow-overwrite=true --seed-ratio=0.0 --seed-time=0 -x 16 -s 16 -k 1M -d /tmp /tmp/AnduinOS-1.4.0.torrent
-judge "Download AnduinOS 1.4.0 ISO"
-
-ISO_FILE_PATH=$(ls /tmp/AnduinOS-1.4.0*.iso | head -n 1)
-print_ok "Ensure downloaded ISO file exists..."
-if [[ -f "$ISO_FILE_PATH" ]]; then
-    print_ok "Downloaded ISO file found: $ISO_FILE_PATH"
-else
-    print_error "Downloaded ISO file not found."
-    exit 1
-fi
-
-SHA256_FILE_PATH="/tmp/AnduinOS-1.4.0.sha256"
-
-print_ok "Verifying download integrity..."
-ACTUAL_SHA256=$(sha256sum "$ISO_FILE_PATH" | awk '{print $1}')
-EXPECTED_SHA256=$(grep 'SHA256:' "$SHA256_FILE_PATH" | awk '{print $2}')
-if [[ "$ACTUAL_SHA256" == "$EXPECTED_SHA256" ]]; then
-    print_ok "SHA256 checksum verification passed."
-else
-    print_ok "Expected SHA256: $EXPECTED_SHA256"
-    print_ok "Actual SHA256:   $ACTUAL_SHA256"
-    print_error "SHA256 checksum verification failed. The downloaded file may be corrupted."
-    exit 1
-fi
-
-print_ok "Mounting the ISO..."
-sudo mkdir -p /mnt/anduinos_iso
-sudo mount -o loop,ro "$ISO_FILE_PATH" /mnt/anduinos_iso
-judge "Mount ISO"
+print_ok "Installing required packages (curl)..."
+sudo apt install -y curl || sudo apt update && sudo apt install -y curl
+judge "Install required packages (curl)"
 
 print_ok "Verifying content in the ISO..."
-(cd /mnt/anduinos_iso && sudo md5sum -c md5sum.txt)
+(cd ${SCRIPT_DIR} && sudo md5sum -c md5sum.txt)
 judge "ISO content integrity verification"
 
 print_ok "Mounting the filesystem.squashfs..."
 sudo mkdir -p /mnt/anduinos_squashfs
-sudo mount -o loop,ro /mnt/anduinos_iso/casper/filesystem.squashfs /mnt/anduinos_squashfs
+sudo mount -o loop,ro "$SQUASH_FILE" /mnt/anduinos_squashfs
 judge "Mount filesystem.squashfs"
+
+# backup
+print_ok "Backing up APT configuration files..."
+sudo mkdir /etc/apt/preferences.d.bak >/dev/null 2>&1 || true
+sudo rsync -Aax /etc/apt/preferences.d/ /etc/apt/preferences.d.bak/ >/dev/null 2>&1 || true
+judge "Backup APT configuration files"
+# reset
 
 print_ok "Resetting APT configuration files..."
 sudo rm /etc/apt/preferences.d/* >/dev/null 2>&1 || true
@@ -162,7 +133,7 @@ sudo apt update
 judge "Update Mozilla Team PPA"
 
 print_ok "Generating package list for upgrade..."
-MANIFEST_FILE="/mnt/anduinos_iso/casper/filesystem.manifest-desktop"
+MANIFEST_FILE="$SCRIPT_DIR/casper/filesystem.manifest-desktop"
 
 cut -d' ' -f1 "$MANIFEST_FILE" \
   | grep -v '^linux-' \
@@ -303,6 +274,7 @@ sudo rsync -Aax /mnt/anduinos_squashfs/usr/share/plymouth/ubuntu-logo.png /usr/s
 judge "Update system version information"
 
 print_ok "Applying dconf settings patch..."
+# TODO: change to local file if possible
 PATCH_URL="https://gitlab.aiursoft.com/anduin/anduinos/-/raw/1.4/src/mods/35-dconf-patch/dconf.ini?ref_type=heads"
 curl -sL "$PATCH_URL" | dconf load /org/gnome/
 judge "Apply dconf settings patch"
