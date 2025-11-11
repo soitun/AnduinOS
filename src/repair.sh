@@ -24,6 +24,7 @@ set -u
 PKG_TEMP_FILE=$(mktemp)
 export SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 export SQUASH_FILE="$SCRIPT_DIR/casper/filesystem.squashfs"
+export DCONF_FILE="$SCRIPT_DIR/casper/default-dconf.ini"
 trap 'rm -f "$PKG_TEMP_FILE"' EXIT
 
 Green="\033[32m"
@@ -70,15 +71,84 @@ function clean_up() {
 
 clean_up
 
-print_ok "Checking system compatibility..."
-codename=$(lsb_release -cs)
-if [[ "$codename" != "questing" ]] then
-    print_error "This upgrade script can only be run *from* AnduinOS Questing."
+print_ok "Checking ISO and system compatibility..."
+
+# 1. Get ISO info from .disk/info
+DISK_INFO_FILE="$SCRIPT_DIR/.disk/info"
+if [ ! -f "$DISK_INFO_FILE" ]; then
+    print_error ".disk/info file not found in ISO root! Cannot verify target."
     exit 1
 fi
+
+# Parse "AnduinOS 1.4.1 questing - Release amd64 (20251111)"
+ISO_PRODUCT=$(awk '{print $1}' "$DISK_INFO_FILE")
+ISO_VERSION=$(awk '{print $2}' "$DISK_INFO_FILE")
+ISO_CODENAME=$(awk '{print $3}' "$DISK_INFO_FILE")
+ISO_ARCH=$(awk '{print $6}' "$DISK_INFO_FILE")
+
+# 2. Get System info from /etc/lsb-release
+if [ ! -f "/etc/lsb-release" ]; then
+    print_error "System /etc/lsb-release file not found. Is this an installed AnduinOS?"
+    exit 1
+fi
+
+source /etc/lsb-release # Loads $DISTRIB_ID, $DISTRIB_RELEASE, $DISTRIB_CODENAME
+SYS_PRODUCT=$DISTRIB_ID
+SYS_VERSION=$DISTRIB_RELEASE
+SYS_CODENAME=$DISTRIB_CODENAME
+SYS_ARCH=$(dpkg --print-architecture)
+
+# 4. Compare system vs ISO versions with new rules
+  ISO_MAJOR_MINOR=$(echo "$ISO_VERSION" | cut -d'.' -f1-2)
+  SYS_MAJOR_MINOR=$(echo "$SYS_VERSION" | cut -d'.' -f1-2)
+
+  if [[ "$ISO_MAJOR_MINOR" != "$SYS_MAJOR_MINOR" ]]; then
+      # Critical unmatch (e.g., ISO 1.4.x vs System 1.3.x)
+      print_error "Version Mismatch (Major.Minor)."
+      print_error "System is $SYS_VERSION (base $SYS_MAJOR_MINOR), but ISO is $ISO_VERSION (base $ISO_MAJOR_MINOR)."
+      print_error "This ISO cannot repair this system. Aborting."
+      exit 1
+  
+  elif [[ "$ISO_VERSION" != "$SYS_VERSION" ]]; then
+      # Minor unmatch (e.g., ISO 1.4.0 vs System 1.4.1)
+      print_warn "Version Mismatch (Patch)."
+      print_warn "System version ($SYS_VERSION) does not exactly match ISO version ($ISO_VERSION)."
+      print_warn "Since the base version ($ISO_MAJOR_MINOR) matches, you may proceed, but this is not guaranteed."
+      
+      read -p "Do you want to force continue the repair? (y/N): " force_confirm
+      if [[ "$force_confirm" != "y" && "$force_confirm" != "Y" ]]; then
+          print_error "Repair process aborted by user due to version mismatch."
+          exit 1
+      fi
+      
+      print_ok "User confirmed. Forcing repair with different patch version."
+  fi
+
+print_ok "ISO target:   ${Blue}$ISO_PRODUCT $ISO_VERSION ($ISO_CODENAME) $ISO_ARCH${Font}"
+print_ok "System found: ${Blue}$SYS_PRODUCT $SYS_VERSION ($SYS_CODENAME) $SYS_ARCH${Font}"
+
+# 3. Compare compatibility
+if [[ "$SYS_PRODUCT" != "$ISO_PRODUCT" ]]; then
+    print_error "Product mismatch. System is '$SYS_PRODUCT', ISO is for '$ISO_PRODUCT'."
+    exit 1
+fi
+
+if [[ "$SYS_CODENAME" != "$ISO_CODENAME" ]]; then
+    print_error "Codename mismatch. System is '$SYS_CODENAME', ISO is for '$ISO_CODENAME'."
+    print_error "This ISO can only repair '$ISO_CODENAME' systems."
+    exit 1
+fi
+
+if [[ "$SYS_ARCH" != "$ISO_ARCH" ]]; then
+    print_error "Architecture mismatch. System is '$SYS_ARCH', ISO is for '$ISO_ARCH'."
+    exit 1
+fi
+
+print_ok "System is compatible with this repair ISO."
 judge "System compatibility check"
 
-echo -e "${Yellow}WARNING: This script is intended for repairing AnduinOS 1.4.0 systems.${Font}"
+echo -e "${Yellow}WARNING: This script is for repairing ${ISO_PRODUCT} ($ISO_CODENAME) systems.${Font}"
+echo -e "${Yellow}This ISO (${ISO_VERSION}) will be used to repair your installed system (${SYS_VERSION}).${Font}"
 echo -e "${Yellow}Some configuration files may be overwritten during this process. Including:${Font}"
 echo -e "${Yellow}- APT sources and preferences files${Font}"
 echo -e "${Yellow}- GNOME session and Wayland session files${Font}"
@@ -274,9 +344,7 @@ sudo rsync -Aax /mnt/anduinos_squashfs/usr/share/plymouth/ubuntu-logo.png /usr/s
 judge "Update system version information"
 
 print_ok "Applying dconf settings patch..."
-# TODO: change to local file if possible
-PATCH_URL="https://gitlab.aiursoft.com/anduin/anduinos/-/raw/1.4/src/mods/35-dconf-patch/dconf.ini?ref_type=heads"
-curl -sL "$PATCH_URL" | dconf load /org/gnome/
+cat "$DCONF_FILE" | dconf load /org/gnome/
 judge "Apply dconf settings patch"
 
 print_ok "Updating initramfs..."
