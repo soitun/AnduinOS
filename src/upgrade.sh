@@ -6,7 +6,7 @@ set -e                  # exit on error
 set -o pipefail         # exit on pipeline error
 set -u                  # treat unset variable as error
 export DEBIAN_FRONTEND=noninteractive
-export LATEST_VERSION="1.4.0"
+export LATEST_VERSION="1.4.1"
 export CODE_NAME="questing"
 export OS_ID="AnduinOS"
 export CURRENT_VERSION=$(cat /etc/lsb-release | grep DISTRIB_RELEASE | cut -d "=" -f 2)
@@ -59,6 +59,18 @@ function ensureCurrentOsAnduinOs() {
         print_error "This script can only be run on AnduinOS."
         exit 1
     fi
+}
+
+function upgrade_140_to_141() {
+    print_ok "Upgrading from version 1.4.0 to 1.4.1..."
+    sudo apt-get update
+    sudo apt-get install sane-airscan sane-utils simple-scan -y --no-install-recommends
+
+    print_ok "Installing anduinos-autorepair tool to /usr/local/bin/..."
+    BRANCH=$(grep -oP "VERSION_ID=\"\\K\\d+\\.\\d+" /etc/os-release)
+    sudo wget -O /usr/local/bin/anduinos-autorepair "https://gitlab.aiursoft.com/anduin/anduinos/-/raw/${BRANCH}/src/mods/40-do-anduinos-autorepair-mod/do-anduinos-autorepair.sh"
+    sudo chmod +x /usr/local/bin/anduinos-autorepair
+    judge "Install anduinos-autorepair tool"
 }
 
 function applyLsbRelease() {
@@ -114,6 +126,10 @@ function main() {
     # Run necessary upgrades based on current version
     case "$CURRENT_VERSION" in
           "1.4.0")
+              # Call upgrade functions for 1.4.0 to 1.4.1
+              upgrade_140_to_141
+              ;;
+          "1.4.1")
               print_ok "Your system is already up to date. No update available."
               exit 0
               ;;
