@@ -71,6 +71,8 @@ function upgrade_140_to_141() {
     sudo wget -O /usr/local/bin/anduinos-autorepair "https://gitlab.aiursoft.com/anduin/anduinos/-/raw/${BRANCH}/src/mods/40-do-anduinos-autorepair-mod/do-anduinos-autorepair.sh"
     sudo chmod +x /usr/local/bin/anduinos-autorepair
     judge "Install anduinos-autorepair tool"
+
+    print_ok "Successfully upgraded to version 1.4.1"
 }
 
 function applyLsbRelease() {
