@@ -75,33 +75,37 @@ function ensure_root() {
   # If we are here, we are root.
 }
 
-# --- 4.5 SSH & Persistence Check ---
+# --- 4.5 GUI/Persistence Safeguard ---
 
-function check_ssh_safeguard() {
+function check_gui_safeguard() {
   # Skip check in auto-upgrade mode
   if [[ "$AUTO_UPGRADE" == "Y" ]] || [[ "$AUTO_UPGRADE" == "y" ]]; then
-    print_ok "Auto-upgrade mode enabled, skipping SSH safeguard check."
+    print_ok "Auto-upgrade mode enabled, skipping persistence safeguard check."
     return
   fi
-  
-  if [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ]; then
-    # Check for screen/tmux
-    if [ -n "${STY:-}" ] || [ -n "${TMUX:-}" ] || [[ "${TERM:-}" == *"screen"* ]] || [[ "${TERM:-}" == *"tmux"* ]]; then
-        print_ok "SSH detected, but running inside persistence (screen/tmux). Safe."
-        return
-    fi
-    
-    print_warn "SSH session detected WITHOUT screen/tmux!"
-    print_warn "Network disconnection could kill the critical upgrade process."
-    
+
+  # During the upgrade GDM/GNOME will be restarted.  If the script is
+  # running inside a GUI terminal (gnome-terminal, xterm, etc.) that
+  # terminal dies along with the session — killing the upgrade mid-flight.
+  # screen/tmux detach from the GUI and survive.
+  if [ -z "${STY:-}" ] && [ -z "${TMUX:-}" ] && [[ "${TERM:-}" != *"screen"* ]] && [[ "${TERM:-}" != *"tmux"* ]]; then
+    print_warn "You are NOT running inside a screen or tmux session!"
+    print_warn "During the upgrade, the graphical desktop (GDM/GNOME) WILL BE RESTARTED."
+    print_warn "If you run this directly in a GUI terminal, the terminal will CLOSE"
+    print_warn "mid-upgrade and CORRUPT your system."
+    print_warn ""
+    print_warn "  Recommended:  tmux new -s upgrade  (or  screen -S upgrade)"
+    print_warn ""
+
     if [ -t 0 ]; then
-        read -p "Continue anyway? (y/N): " confirm
+        read -p "Are you absolutely sure you want to risk this? (y/N): " confirm
         if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-            print_error "Aborted. Please use screen/tmux."
+            print_error "Aborted. Please run 'tmux' or 'screen' first, then re-run this script."
             exit 1
         fi
     fi
-
+  else
+    print_ok "Running inside persistence (screen/tmux). Terminal will survive GUI restarts."
   fi
 }
 
@@ -863,14 +867,13 @@ function restore_and_upgrade_ppa_sources() {
 
 
 function install_anduinos2_packages() {
-
   # Variables for APT repository and GPG key
   APKG_SERVER="https://packages.anduinos.com"
   CERT_NAME="anduinos"
   KEYRING_PATH="/usr/share/keyrings/anduinos-archive-keyring.gpg"
   SUITE="$(lsb_release -sc)-addon"
 
-  # Update package lists and install prerequisites for adding the AnduinOS repository
+  # Update package lists and install prerequisites
   sudo apt update
   sudo apt install -y curl gnupg2 ca-certificates
 
@@ -883,7 +886,6 @@ function install_anduinos2_packages() {
       | sudo tee "${KEYRING_PATH}" > /dev/null
   judge "Add AnduinOS GPG key"
 
-  # Add the AnduinOS repository to the sources list
   print_ok "Adding AnduinOS repository to APT sources..."
   sudo tee /etc/apt/sources.list.d/anduinos.sources > /dev/null <<EOF
 Types: deb
@@ -895,160 +897,78 @@ Signed-By: ${KEYRING_PATH}
 EOF
   judge "Add AnduinOS repository"
 
-  # Update the package lists and install AnduinOS packages while removing conflicting Ubuntu packages
   sudo apt update
-  print_ok "Installing AnduinOS packages and removing conflicting Ubuntu packages..."
-  # --force-overwrite: allow AnduinOS packages to clobber files owned by
-  #   Ubuntu packages (fixes "trying to overwrite ... which is also in
-  #   package ..." fatal errors).
-  # --force-confnew: always take the 2.0 package version of conffiles,
-  #   wiping any imperative sed/cp hacks left by old 1.4 build scripts.
-  sudo apt-get install -y \
-      --allow-downgrades \
-      --allow-change-held-packages \
-      -o Dpkg::Options::="--force-overwrite" \
-      -o Dpkg::Options::="--force-confnew" \
-      coreutils-from-uutils \
-      anduinos-desktop \
-      anduinos-desktop-apps \
-      anduinos-gnome-extensions \
-      anduinos-appstore \
-      anduinos-theme \
-      anduinos-wallpapers \
-      anduinos-fonts \
-      anduinos-no-snapd \
-      anduinos-session \
-      anduinos-software-properties-common/resolute-addon \
-      anduinos-software-properties-gtk/resolute-addon \
-      anduinos-system-tweaks \
-      anduinos-ufwall-gtk \
-      firefox-anduinos \
-      gnome-shell-extension-appindicator-anduinos \
-      gnome-shell-extension-dash-to-panel-anduinos \
-      gnome-shell-extension-desktop-icons-ng-anduinos \
-      plymouth-anduinos \
-      alsa-ucm-conf-anduinos \
-      firmware-sof-anduinos \
-      initramfs-tools \
-      snapd- \
-      firefox- \
-      ubuntu-session- \
-      ubuntu-desktop- \
-      ubiquity-slideshow-ubuntu- \
-      yaru-theme-gnome-shell- \
-      gnome-shell-ubuntu-extensions- \
-      update-notifier- \
-      update-notifier-common- \
-      update-manager- \
-      update-manager-core- \
-      ubuntu-release-upgrader-core- \
-      ubuntu-release-upgrader-gtk- \
-      whoopsie- \
-      software-properties-gtk- \
-      software-properties-common- \
-      firmware-sof-signed- \
-      alsa-ucm-conf- \
-      plymouth-theme-spinner- \
-      gnome-shell-extension-appindicator- \
-      gnome-shell-extension-dash-to-panel- \
-      gnome-shell-extension-desktop-icons-ng- \
-      ubuntu-wallpapers- \
-      ubuntu-advantage-desktop-daemon- \
-      ubuntu-pro-client- \
-      ubuntu-wallpapers-resolute- \
-      --install-recommends
-  judge "Install AnduinOS packages and remove conflicting Ubuntu packages"
 
-  print_ok "Reinstalling base-files to ensure correct release information..."
-  sudo apt reinstall -y base-files
-  judge "Reinstall base-files"
-
-  print_ok "Installing GNOME desktop environment and related packages..."
+  # ═══════════════════════════════════════════════════════════════════
+  # Grand Unification — one apt-get invocation to rule them all.
+  #
+  # Why a single command?  APT's dependency resolver sees the ENTIRE
+  # picture at once.  Splitting across multiple apt-get calls forces
+  # it to re-solve an incomplete state each time, which creates
+  # "hostage situations" (plymouth won't upgrade because it would
+  # remove anduinos-desktop, etc.).
+  #
+  # This single invocation:
+  #   -o Dpkg::Options::="--force-overwrite"   → clobber Ubuntu-owned files
+  #   -o Dpkg::Options::="--force-confnew"      → nuke 1.4 imperative hacks
+  #   -o APT::Get::Always-Include-Phased-Updates → ignore Canonical phasing
+  #   --allow-downgrades / --allow-change-held-packages → full freedom
+  #
+  # The remove-list (trailing -) includes the three "hostage-takers"
+  # that caused the 3 AM shovel session:
+  #   plymouth-theme-ubuntu-text-  packagekit-tools-  libavcodec-extra-
+  # ═══════════════════════════════════════════════════════════════════
+  print_ok "Executing Grand Unification: installing AnduinOS, GNOME 50, and wiping Ubuntu conflicts..."
   DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
       --allow-downgrades \
       --allow-change-held-packages \
       -o Dpkg::Options::="--force-overwrite" \
       -o Dpkg::Options::="--force-confnew" \
-      gnome-shell gdm3 mutter-common python3 libadwaita-1-0 \
-      gnome-control-center gnome-session
-  judge "Install GNOME desktop environment"
+      -o APT::Get::Always-Include-Phased-Updates=true \
+      coreutils-from-uutils \
+      gnome-shell gdm3 mutter-common python3 libadwaita-1-0 gnome-control-center gnome-session \
+      anduinos-desktop anduinos-desktop-apps anduinos-gnome-extensions \
+      anduinos-appstore anduinos-theme anduinos-wallpapers anduinos-fonts \
+      anduinos-no-snapd anduinos-session \
+      anduinos-software-properties-common/resolute-addon \
+      anduinos-software-properties-gtk/resolute-addon \
+      anduinos-system-tweaks anduinos-ufwall-gtk firefox-anduinos \
+      gnome-shell-extension-appindicator-anduinos \
+      gnome-shell-extension-dash-to-panel-anduinos \
+      gnome-shell-extension-desktop-icons-ng-anduinos \
+      plymouth-anduinos alsa-ucm-conf-anduinos firmware-sof-anduinos initramfs-tools \
+      snapd- firefox- ubuntu-session- ubuntu-desktop- ubiquity-slideshow-ubuntu- \
+      yaru-theme-gnome-shell- gnome-shell-ubuntu-extensions- update-notifier- \
+      update-notifier-common- update-manager- update-manager-core- \
+      ubuntu-release-upgrader-core- ubuntu-release-upgrader-gtk- whoopsie- \
+      software-properties-gtk- software-properties-common- firmware-sof-signed- \
+      alsa-ucm-conf- plymouth-theme-spinner- gnome-shell-extension-appindicator- \
+      gnome-shell-extension-dash-to-panel- gnome-shell-extension-desktop-icons-ng- \
+      ubuntu-wallpapers- ubuntu-advantage-desktop-daemon- ubuntu-pro-client- \
+      ubuntu-wallpapers-resolute- \
+      plymouth-theme-ubuntu-text- packagekit-tools- libavcodec-extra- \
+      --install-recommends
+  judge "Grand Unification installation"
 
-  print_ok "Running full dist-upgrade to finalize AnduinOS package installation..."
-  sudo apt-get -o APT::Get::Always-Include-Phased-Updates=true dist-upgrade -y
-  judge "Final dist-upgrade for AnduinOS packages"
+  print_ok "Reinstalling base-files to ensure correct release information..."
+  sudo apt reinstall -y \
+      --allow-downgrades \
+      --allow-change-held-packages \
+      -o Dpkg::Options::="--force-overwrite" \
+      -o Dpkg::Options::="--force-confnew" \
+      -o APT::Get::Always-Include-Phased-Updates=true \
+      base-files
+  judge "Reinstall base-files"
 
-  print_ok "Cleaning up unused packages and cache..."
+  print_ok "Purging orphaned dependencies and old ABI libraries..."
   sudo apt-get autoremove --purge -y && sudo apt-get clean
   judge "Cleanup unused packages and cache"
 
-  # Update dconf settings to apply AnduinOS defaults
   print_ok "Updating dconf settings to apply AnduinOS defaults..."
   sudo dconf update
   judge "Update dconf settings"
 
-  #print_ok "Resetting dconf settings to ensure AnduinOS defaults are applied..."
-  #dconf reset -f /org/gnome/
-  #judge "Reset dconf settings"
-
-  print_ok "AnduinOS packages installed successfully!"
-}
-
-function force_resolve_hostage_packages() {
-  # ─────────────────────────────────────────────────────────────────
-  # "Shovel Duty" — the last 1% of upgrade hell.
-  #
-  # Ubuntu 26.04 has packages (plymouth, geary, graphviz, etc.) that
-  # APT refuses to upgrade because doing so would temporarily remove
-  # an AnduinOS meta-package.  APT's resolver is conservative: it
-  # would rather hold back 20 packages than break one meta-package.
-  #
-  # Strategy (exactly what a human would do at 3 AM):
-  #   1. Let APT smash the meta-package to upgrade the holdouts.
-  #   2. Reinstall the meta-package from the 2.0 repo (which now
-  #      declares deps against the NEW library versions).
-  #   3. Full sweep of remaining phased/staged updates.
-  #   4. Purge the orphaned old-ABI libraries.
-  # ─────────────────────────────────────────────────────────────────
-  print_ok "Phase 4: Resolving held-back hostage packages..."
-
-  # ── 4a. Break the Plymouth deadlock ──
-  # plymouth-anduinos (1.4) depends on plymouth (= old-version).
-  # plymouth (26.04) is newer and conflicts.  APT won't touch it
-  # because removing plymouth-anduinos cascades to anduinos-desktop.
-  # Solution: let it rip, we'll reinstall the AnduinOS packages next.
-  print_warn "Forcing Plymouth upgrade (temporarily removing desktop meta-packages)..."
-  DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y \
-    plymouth plymouth-label plymouth-theme-ubuntu-text || true
-
-  # ── 4b. Reclaim AnduinOS desktop ──
-  # The 2.0 versions of these packages depend on the NEW plymouth,
-  # so they install cleanly this time.
-  print_ok "Re-securing AnduinOS core desktop packages..."
-  DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    --allow-downgrades \
-    --allow-change-held-packages \
-    -o Dpkg::Options::="--force-overwrite" \
-    -o Dpkg::Options::="--force-confnew" \
-    anduinos-desktop anduinos-theme plymouth-anduinos || true
-
-  # ── 4c. Full sweep of remaining phased/staged updates ──
-  # -o APT::Get::Always-Include-Phased-Updates=true forces apt to
-  # ignore Canonical's phased rollout, which otherwise holds back
-  # packages like geary, graphviz, libavcodec-extra, etc.
-  print_ok "Forcing upgrade of remaining phased updates and stragglers..."
-  DEBIAN_FRONTEND=noninteractive apt-get \
-    -o APT::Get::Always-Include-Phased-Updates=true \
-    dist-upgrade -y || true
-
-  # ── 4d. Purge old-ABI orphaned libraries ──
-  # libmjpegutils-2.1, libwireshark18, libpcp3, etc. — these are
-  # the "abandoned warehouses" of the old distro.  autoremove --purge
-  # physically deletes them and their conffiles.
-  print_ok "Purging orphaned dependencies and old ABI libraries..."
-  DEBIAN_FRONTEND=noninteractive apt-get autoremove --purge -y || true
-  apt-get clean || true
-
-  judge "Final hostage package resolution and deep purge"
+  print_ok "AnduinOS 2.0 packages installed and sealed successfully!"
 }
 
 function cleanup_system() {
@@ -1099,7 +1019,7 @@ function main() {
   fi
   
   # Step 0: Check Safeguards
-  check_ssh_safeguard
+  check_gui_safeguard
 
   # Step 1: Configure Unattended (Anti-Prompt)
   configure_unattended
@@ -1130,9 +1050,6 @@ function main() {
 
   # Step 9: Install AnduinOS 2.0 packages (coreutils, desktop, branding, app ecosystem)
   install_anduinos2_packages
-
-  # Step 9.5: Force-resolve held-back hostage packages (plymouth, phased updates, old ABIs)
-  force_resolve_hostage_packages
 
   # Step 10: Restore and upgrade PPA sources
   restore_and_upgrade_ppa_sources
