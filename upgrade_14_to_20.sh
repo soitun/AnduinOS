@@ -392,6 +392,10 @@ function check_disk_space() {
 function update_system() {
   print_ok "Ensuring current system (1.3 / Ubuntu 25.04) is fully updated..."
 
+  print_ok "Removing any APT pinning that may block upgrades..."
+  sudo rm /etc/apt/preferences.d/no-* 2>/dev/null || true
+  judge "Remove APT pinning"
+
   print_ok "Running apt update with retry..."
   apt_update_with_retry
   judge "apt update with retry"
@@ -753,7 +757,7 @@ NAME="AnduinOS"
 VERSION_ID="2.0.0"
 VERSION="2.0.0 (resolute)"
 VERSION_CODENAME=resolute
-ID=ubuntu
+ID=anduinos
 ID_LIKE=debian
 HOME_URL="https://www.anduinos.com/"
 SUPPORT_URL="https://github.com/Anduin2017/AnduinOS/discussions"
@@ -900,6 +904,8 @@ EOF
   # --force-confnew: always take the 2.0 package version of conffiles,
   #   wiping any imperative sed/cp hacks left by old 1.4 build scripts.
   sudo apt-get install -y \
+      --allow-downgrades \
+      --allow-change-held-packages \
       -o Dpkg::Options::="--force-overwrite" \
       -o Dpkg::Options::="--force-confnew" \
       coreutils-from-uutils \
@@ -912,8 +918,8 @@ EOF
       anduinos-fonts \
       anduinos-no-snapd \
       anduinos-session \
-      anduinos-software-properties-common \
-      anduinos-software-properties-gtk \
+      anduinos-software-properties-common/resolute-addon \
+      anduinos-software-properties-gtk/resolute-addon \
       anduinos-system-tweaks \
       anduinos-ufwall-gtk \
       firefox-anduinos \
@@ -957,16 +963,92 @@ EOF
   sudo apt reinstall -y base-files
   judge "Reinstall base-files"
 
+  print_ok "Installing GNOME desktop environment and related packages..."
+  DEBIAN_FRONTEND=noninteractive sudo apt-get install -y \
+      --allow-downgrades \
+      --allow-change-held-packages \
+      -o Dpkg::Options::="--force-overwrite" \
+      -o Dpkg::Options::="--force-confnew" \
+      gnome-shell gdm3 mutter-common python3 libadwaita-1-0 \
+      gnome-control-center gnome-session
+  judge "Install GNOME desktop environment"
+
+  print_ok "Running full dist-upgrade to finalize AnduinOS package installation..."
+  sudo apt-get -o APT::Get::Always-Include-Phased-Updates=true dist-upgrade -y
+  judge "Final dist-upgrade for AnduinOS packages"
+
+  print_ok "Cleaning up unused packages and cache..."
+  sudo apt-get autoremove --purge -y && sudo apt-get clean
+  judge "Cleanup unused packages and cache"
+
   # Update dconf settings to apply AnduinOS defaults
   print_ok "Updating dconf settings to apply AnduinOS defaults..."
   sudo dconf update
   judge "Update dconf settings"
 
-  print_ok "Resetting dconf settings to ensure AnduinOS defaults are applied..."
-  dconf reset -f /org/gnome/
-  judge "Reset dconf settings"
+  #print_ok "Resetting dconf settings to ensure AnduinOS defaults are applied..."
+  #dconf reset -f /org/gnome/
+  #judge "Reset dconf settings"
 
   print_ok "AnduinOS packages installed successfully!"
+}
+
+function force_resolve_hostage_packages() {
+  # ─────────────────────────────────────────────────────────────────
+  # "Shovel Duty" — the last 1% of upgrade hell.
+  #
+  # Ubuntu 26.04 has packages (plymouth, geary, graphviz, etc.) that
+  # APT refuses to upgrade because doing so would temporarily remove
+  # an AnduinOS meta-package.  APT's resolver is conservative: it
+  # would rather hold back 20 packages than break one meta-package.
+  #
+  # Strategy (exactly what a human would do at 3 AM):
+  #   1. Let APT smash the meta-package to upgrade the holdouts.
+  #   2. Reinstall the meta-package from the 2.0 repo (which now
+  #      declares deps against the NEW library versions).
+  #   3. Full sweep of remaining phased/staged updates.
+  #   4. Purge the orphaned old-ABI libraries.
+  # ─────────────────────────────────────────────────────────────────
+  print_ok "Phase 4: Resolving held-back hostage packages..."
+
+  # ── 4a. Break the Plymouth deadlock ──
+  # plymouth-anduinos (1.4) depends on plymouth (= old-version).
+  # plymouth (26.04) is newer and conflicts.  APT won't touch it
+  # because removing plymouth-anduinos cascades to anduinos-desktop.
+  # Solution: let it rip, we'll reinstall the AnduinOS packages next.
+  print_warn "Forcing Plymouth upgrade (temporarily removing desktop meta-packages)..."
+  DEBIAN_FRONTEND=noninteractive apt-get dist-upgrade -y \
+    plymouth plymouth-label plymouth-theme-ubuntu-text || true
+
+  # ── 4b. Reclaim AnduinOS desktop ──
+  # The 2.0 versions of these packages depend on the NEW plymouth,
+  # so they install cleanly this time.
+  print_ok "Re-securing AnduinOS core desktop packages..."
+  DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    --allow-downgrades \
+    --allow-change-held-packages \
+    -o Dpkg::Options::="--force-overwrite" \
+    -o Dpkg::Options::="--force-confnew" \
+    anduinos-desktop anduinos-theme plymouth-anduinos || true
+
+  # ── 4c. Full sweep of remaining phased/staged updates ──
+  # -o APT::Get::Always-Include-Phased-Updates=true forces apt to
+  # ignore Canonical's phased rollout, which otherwise holds back
+  # packages like geary, graphviz, libavcodec-extra, etc.
+  print_ok "Forcing upgrade of remaining phased updates and stragglers..."
+  DEBIAN_FRONTEND=noninteractive apt-get \
+    -o APT::Get::Always-Include-Phased-Updates=true \
+    dist-upgrade -y || true
+
+  # ── 4d. Purge old-ABI orphaned libraries ──
+  # libmjpegutils-2.1, libwireshark18, libpcp3, etc. — these are
+  # the "abandoned warehouses" of the old distro.  autoremove --purge
+  # physically deletes them and their conffiles.
+  print_ok "Purging orphaned dependencies and old ABI libraries..."
+  DEBIAN_FRONTEND=noninteractive apt-get autoremove --purge -y || true
+  apt-get clean || true
+
+  judge "Final hostage package resolution and deep purge"
 }
 
 function cleanup_system() {
@@ -1048,6 +1130,9 @@ function main() {
 
   # Step 9: Install AnduinOS 2.0 packages (coreutils, desktop, branding, app ecosystem)
   install_anduinos2_packages
+
+  # Step 9.5: Force-resolve held-back hostage packages (plymouth, phased updates, old ABIs)
+  force_resolve_hostage_packages
 
   # Step 10: Restore and upgrade PPA sources
   restore_and_upgrade_ppa_sources
