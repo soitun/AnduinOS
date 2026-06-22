@@ -951,13 +951,13 @@ EOF
   judge "Grand Unification installation"
 
   print_ok "Reinstalling base-files to ensure correct release information..."
-  sudo apt reinstall -y \
+  DEBIAN_FRONTEND=noninteractive sudo apt-get install -y --reinstall \
       --allow-downgrades \
       --allow-change-held-packages \
       -o Dpkg::Options::="--force-overwrite" \
       -o Dpkg::Options::="--force-confnew" \
       -o APT::Get::Always-Include-Phased-Updates=true \
-      base-files
+      base-files/resolute-addon anduinos-apt-config/resolute-addon
   judge "Reinstall base-files"
 
   print_ok "Purging orphaned dependencies and old ABI libraries..."
