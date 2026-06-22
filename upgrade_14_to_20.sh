@@ -37,6 +37,11 @@ AUTO_UPGRADE="${ANDUINOS_AUTO_UPGRADE:-N}"
 # Current Upgrade Stage (questing vs resolute)
 CURRENT_STAGE="questing"
 
+# The Point of No Return flag.
+# Once we start modifying on-disk packages, reverting APT sources is FATAL
+# because it would create a "Franken-System" — new binaries with old repos.
+POINT_OF_NO_RETURN="false"
+
 # --- 3. Helper Functions (Logging) ---
 
 function print_ok() {
@@ -127,26 +132,50 @@ function configure_unattended() {
 
 function rollback_on_error() {
   print_error "An error occurred during the upgrade process"
-  print_warn "Starting rollback procedure..."
-  
+
+  # ── Check if we've already started modifying on-disk packages ──
+  if [ "$POINT_OF_NO_RETURN" == "true" ]; then
+    print_error "═══════════════════════════════════════════════════════════"
+    print_error "  CRITICAL: Core packages have already been modified!"
+    print_error "  Rolling back APT sources NOW WOULD DESTROY YOUR SYSTEM."
+    print_error "  (It would create a Franken-System — new binaries, old repos.)"
+    print_error "═══════════════════════════════════════════════════════════"
+    print_warn ""
+    print_warn "  ── EMERGENCY RECOVERY ──"
+    print_warn "  1. DO NOT REBOOT."
+    print_warn "  2. Fix interrupted package installations:"
+    print_warn "     sudo dpkg --configure -a"
+    print_warn "  3. Fix broken dependencies:"
+    print_warn "     sudo apt-get --fix-broken install"
+    print_warn "  4. Resume the upgrade:"
+    print_warn "     sudo apt-get dist-upgrade"
+    print_warn "  ─────────────────────────"
+    print_error ""
+    print_error "  Backup files are preserved in: $BACKUP_DIR"
+    exit 1
+  fi
+
+  # ── Safe zone: no packages modified yet, source rollback is safe ──
+  print_warn "Starting rollback procedure (safe mode — no packages modified yet)..."
+
   # Restore ubuntu.sources if backup exists
   if [ -f "$UBUNTU_SOURCE_BACKUP/ubuntu.sources" ]; then
     print_ok "Restoring ubuntu.sources..."
     cp "$UBUNTU_SOURCE_BACKUP/ubuntu.sources" /etc/apt/sources.list.d/
     print_ok "Restored ubuntu.sources"
   fi
-  
+
   # Restore sources.list if backup exists
   if [ -f "$UBUNTU_SOURCE_BACKUP/sources.list" ]; then
     print_ok "Restoring sources.list..."
     cp "$UBUNTU_SOURCE_BACKUP/sources.list" /etc/apt/
     print_ok "Restored sources.list"
   fi
-  
+
   # Restore PPA sources (Detailed Loop from Old Script)
   if [ -d "$PPA_BACKUP_DIR" ]; then
     ppa_count=$(ls -1 "$PPA_BACKUP_DIR" 2>/dev/null | wc -l)
-    
+
     if [ "$ppa_count" -gt 0 ]; then
       print_ok "Restoring PPA sources..."
       for file in "$PPA_BACKUP_DIR"/*; do
@@ -157,22 +186,22 @@ function rollback_on_error() {
       done
     fi
   fi
-  
+
   # Remove temporary apt configuration if exists
   if [ -f "/etc/apt/apt.conf.d/99-local-versions" ]; then
     rm -f /etc/apt/apt.conf.d/99-local-versions
     print_ok "Removed temporary apt configuration"
   fi
-  
+
   # Run apt update to restore repository state
   print_ok "Running apt update to restore repository state..."
   apt update || true
-  
+
   print_warn "Rollback completed"
   print_warn "Your system has been restored to the previous state"
   print_warn "Backup files are preserved in: $BACKUP_DIR"
   print_error "Please check the error messages above and try again"
-  
+
   exit 1
 }
 
@@ -659,12 +688,43 @@ function install_coreutils_uutils() {
 }
 
 function run_dist_upgrade() {
-  print_ok "Simulating apt dist-upgrade first..."
-  apt -s dist-upgrade > /dev/null
-  judge "apt -s dist-upgrade"
+  # ═══════════════════════════════════════════════════════════════
+  # CROSSING THE RUBICON
+  # Once we pass this point, core packages are being modified on disk.
+  # Restoring old APT sources after this would create a Franken-System
+  # (new binaries + old repos = unfixable dependency hell).
+  # ═══════════════════════════════════════════════════════════════
+  POINT_OF_NO_RETURN="true"
+  print_warn "Crossing the point of no return — package modifications beginning..."
+  print_warn "From here on, failures will NOT roll back APT sources (that would be fatal)."
 
-  print_ok "Running apt dist-upgrade with retry logic..."
-  
+  # ── Phase 1: Minimal upgrade (upgrade existing pkgs, NO new pkgs) ──
+  # This solves the "apt resolver gap".  The old (24.10) apt cannot
+  # resolve 26.04 transitions like sudo→sudo-rs.  By upgrading apt,
+  # dpkg and libc6 first WITHOUT introducing new packages we give the
+  # system a 26.04-grade dependency solver.
+  print_ok "Phase 1: Running minimal upgrade to stabilize APT and core libraries..."
+  if bash -c 'DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a APT_LISTCHANGES_FRONTEND=none \
+    apt-get -y upgrade --without-new-pkgs \
+    -o Dpkg::Options::="--force-confdef" \
+    -o Dpkg::Options::="--force-confold"'; then
+    print_ok "Minimal upgrade succeeded"
+  else
+    print_warn "Minimal upgrade encountered issues, running dpkg repair..."
+    run_dpkg_repair
+  fi
+
+  # ── Phase 2: Pre-resolve the sudo → sudo-rs transition ──
+  # Ubuntu 26.04 replaces the 40-year-old C-language `sudo` with
+  # Rust-based `sudo-rs`.  The old resolver chokes on this with:
+  #   "Conf Broken sudo-common:amd64"
+  # By installing the new trio manually we unblock dist-upgrade.
+  print_ok "Phase 2: Pre-resolving Ubuntu 26.04 critical transition (sudo -> sudo-rs)..."
+  DEBIAN_FRONTEND=noninteractive apt-get install -y sudo-common sudo-rs sudo || true
+
+  # ── Phase 3: Full dist-upgrade with retry ──
+  print_ok "Phase 3: Running full apt-get dist-upgrade with retry logic..."
+
   # Configure dpkg to keep local versions by default
   bash -c 'cat > /etc/apt/apt.conf.d/99-local-versions <<EOF
 Dpkg::Options {
@@ -672,11 +732,11 @@ Dpkg::Options {
    "--force-confold";
 }
 EOF'
-  
+
   # Run dist-upgrade with retry and --fix-missing
   apt_dist_upgrade_with_retry
   judge "apt dist-upgrade with retry"
-  
+
   # Remove temporary configuration
   rm -f /etc/apt/apt.conf.d/99-local-versions
 }
@@ -834,7 +894,14 @@ EOF
   # Update the package lists and install AnduinOS packages while removing conflicting Ubuntu packages
   sudo apt update
   print_ok "Installing AnduinOS packages and removing conflicting Ubuntu packages..."
-  sudo apt install -y \
+  # --force-overwrite: allow AnduinOS packages to clobber files owned by
+  #   Ubuntu packages (fixes "trying to overwrite ... which is also in
+  #   package ..." fatal errors).
+  # --force-confnew: always take the 2.0 package version of conffiles,
+  #   wiping any imperative sed/cp hacks left by old 1.4 build scripts.
+  sudo apt-get install -y \
+      -o Dpkg::Options::="--force-overwrite" \
+      -o Dpkg::Options::="--force-confnew" \
       coreutils-from-uutils \
       anduinos-desktop \
       anduinos-desktop-apps \
