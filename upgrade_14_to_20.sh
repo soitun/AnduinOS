@@ -695,6 +695,46 @@ function install_coreutils_uutils() {
   judge "Install coreutils-from-uutils"
 }
 
+function cleanup_legacy_dkms() {
+  # ── DKMS mine-sweeper ──
+  # Kernel 6.x → 7.0 changes the C headers/API.  Any hand-installed
+  # third-party DKMS module (xpadneo, anbox, rtl88x2bu, v4l2loopback,
+  # etc.) will FAIL to compile against the new kernel headers.
+  #
+  # DKMS failures cascade: the kernel postinst hook runs `dkms autoinstall`,
+  # the build dies, dpkg marks linux-image-* as half-configured, and APT
+  # enters a deadlock where NO package can be installed/removed until the
+  # kernel is "fixed" — which can never happen because the old C code will
+  # never magically become compatible.
+  #
+  # Strategy: rip out every non-NVIDIA DKMS module BEFORE the kernel
+  # upgrade.  Users can reinstall compatible versions later.
+  # ───────────────────────────────────────────────────────────────
+  print_ok "Scanning for legacy third-party DKMS modules..."
+
+  if command -v dkms &> /dev/null; then
+    while read -r line; do
+      # Skip NVIDIA (official driver has Kernel-7-compatible versions)
+      if [[ "$line" == *"nvidia"* ]]; then
+        continue
+      fi
+
+      local module_name=$(echo "$line" | awk -F', ' '{print $1}')
+      local module_version=$(echo "$line" | awk -F', ' '{print $2}' | awk '{print $1}')
+
+      if [ -n "$module_name" ] && [ -n "$module_version" ]; then
+        print_warn "Removing risky DKMS module: $module_name/$module_version"
+        dkms remove "$module_name/$module_version" --all 2>/dev/null || true
+        rm -rf "/var/lib/dkms/$module_name" 2>/dev/null || true
+      fi
+    done < <(dkms status)
+
+    print_ok "Legacy DKMS cleanup complete."
+  else
+    print_ok "DKMS not installed. Skipping DKMS cleanup."
+  fi
+}
+
 function run_dist_upgrade() {
   # ═══════════════════════════════════════════════════════════════
   # CROSSING THE RUBICON
@@ -705,6 +745,9 @@ function run_dist_upgrade() {
   POINT_OF_NO_RETURN="true"
   print_warn "Crossing the point of no return — package modifications beginning..."
   print_warn "From here on, failures will NOT roll back APT sources (that would be fatal)."
+
+  # Sweep legacy DKMS modules before the kernel upgrade
+  cleanup_legacy_dkms
 
   # ── Phase 1: Minimal upgrade (upgrade existing pkgs, NO new pkgs) ──
   # This solves the "apt resolver gap".  The old (24.10) apt cannot
@@ -947,6 +990,7 @@ EOF
       ubuntu-wallpapers- ubuntu-advantage-desktop-daemon- ubuntu-pro-client- \
       ubuntu-wallpapers-resolute- \
       plymouth-theme-ubuntu-text- packagekit-tools- libavcodec-extra- \
+      mesa-va-drivers- \
       --install-recommends
   judge "Grand Unification installation"
 
@@ -972,9 +1016,19 @@ EOF
 }
 
 function cleanup_system() {
-  print_ok "Cleaning up system..."
+  # Final aggressive sweep — `apt full-upgrade` uses a more aggressive
+  # resolver than `apt-get dist-upgrade`.  It will forcefully remove
+  # old blocking packages (like mesa-va-drivers) that would otherwise
+  # hold the entire Mesa display stack hostage.
+  print_ok "Performing final aggressive full-upgrade sweep..."
+  DEBIAN_FRONTEND=noninteractive sudo apt \
+      -o APT::Get::Always-Include-Phased-Updates=true \
+      -o Dpkg::Options::="--force-overwrite" \
+      -o Dpkg::Options::="--force-confnew" \
+      full-upgrade -y || true
+
   print_ok "Removing unused packages (orphans)..."
-  if apt autoremove -y; then
+  if apt autoremove --purge -y; then
     print_ok "apt autoremove succeeded"
   else
     print_warn "apt autoremove failed, but upgrade was successful."
