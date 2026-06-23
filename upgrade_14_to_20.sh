@@ -932,7 +932,7 @@ EOF
       anduinos-no-snapd anduinos-session \
       anduinos-software-properties-common/resolute-addon \
       anduinos-software-properties-gtk/resolute-addon \
-      anduinos-system-tweaks anduinos-ufwall-gtk firefox-anduinos \
+      anduinos-system-tweaks firefox-anduinos \
       gnome-shell-extension-appindicator-anduinos \
       gnome-shell-extension-dash-to-panel-anduinos \
       gnome-shell-extension-desktop-icons-ng-anduinos \
@@ -961,7 +961,7 @@ EOF
   judge "Reinstall base-files"
 
   print_ok "Purging orphaned dependencies and old ABI libraries..."
-  sudo apt-get autoremove --purge -y && sudo apt-get clean
+  sudo apt-get autoremove --purge -y
   judge "Cleanup unused packages and cache"
 
   print_ok "Updating dconf settings to apply AnduinOS defaults..."
