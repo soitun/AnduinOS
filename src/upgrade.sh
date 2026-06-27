@@ -134,6 +134,57 @@ EOF
     print_ok "Successfully upgraded to version 1.4.2"
 }
 
+function upgrade_142_to_200() {
+    print_ok "Upgrading from version 1.4.2 to 2.0.0..."
+
+    # Multiple mirror sources for reliability
+    MIRRORS=(
+        "https://gitlab.aiursoft.com/anduin/anduinos/-/raw/1.4/upgrade_14_to_20.sh?ref_type=heads&inline=false"
+        "https://raw.githubusercontent.com/Anduin2017/AnduinOS/refs/heads/1.4/upgrade_14_to_20.sh"
+    )
+
+    DOWNLOAD_SUCCESS=false
+    DOWNLOAD_PATH="/var/tmp/upgrade_14_to_20.sh"
+
+    # Try each mirror with retry
+    for LINK in "${MIRRORS[@]}"; do
+        print_ok "Downloading upgrade script from: $LINK"
+
+        # Use wget with retry and timeout parameters
+        if wget --retry-connrefused --waitretry=2 --read-timeout=30 --timeout=30 --tries=3 \
+               -O "$DOWNLOAD_PATH" "$LINK" 2>&1; then
+            # Verify the download is not empty and is a valid bash script
+            if [ -s "$DOWNLOAD_PATH" ] && head -n 1 "$DOWNLOAD_PATH" | grep -q "^#!/bin/bash"; then
+                DOWNLOAD_SUCCESS=true
+                print_ok "Successfully downloaded upgrade script from $LINK"
+                break
+            else
+                print_warn "Downloaded file is invalid or empty, trying next mirror..."
+                rm -f "$DOWNLOAD_PATH"
+            fi
+        else
+            print_warn "Failed to download from $LINK, trying next mirror..."
+        fi
+    done
+
+    if [ "$DOWNLOAD_SUCCESS" = false ]; then
+        print_error "Failed to download upgrade script from all mirrors."
+        print_error "Please check your network connection and try again."
+        exit 1
+    fi
+
+    chmod +x "$DOWNLOAD_PATH"
+    judge "Prepare upgrade script"
+
+    print_ok "Executing upgrade script..."
+    ANDUINOS_AUTO_UPGRADE=Y bash "$DOWNLOAD_PATH"
+
+    print_ok "Upgraded to 2.0.0 successfully. It is suggested to run \`do-anduinos-autorepair\` after rebooting."
+
+    # Clean up
+    rm -f "$DOWNLOAD_PATH" || true
+}
+
 function applyLsbRelease() {
 
     # Update /etc/os-release
@@ -180,7 +231,8 @@ function main() {
 
     # Compare current version with latest version
     if [ "$CURRENT_VERSION" == "$LATEST_VERSION" ]; then
-        print_ok "Your system is already up to date. No update available."
+        print_ok "Your system is already up to date. Upgrading to 2.0.0."
+        upgrade_142_to_200
         exit 0
     fi
 
@@ -200,7 +252,8 @@ function main() {
               upgrade_141_to_142
               ;;
           "1.4.2")
-              print_ok "Your system is already up to date. No update available."
+              print_ok "Your system is already up to date. Upgrading to 2.0.0."
+              upgrade_142_to_200
               exit 0
               ;;
            *)
@@ -231,6 +284,9 @@ function main() {
     # Apply updates to lsb-release, os-release, and issue files
     applyLsbRelease
     print_ok "System upgraded successfully to version ${LATEST_VERSION}"
+
+    print_ok "Now upgrading to version 2.0.0..."
+    upgrade_142_to_200
 }
 
 main
